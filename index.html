@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frog Math Pond</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    
+    <!-- ========================================== -->
+    <!-- HEADER SECTION                             -->
+    <!-- ========================================== -->
+    <header class="game-header">
+        <h1 class="game-title">🐸 Frog Math Pond</h1>
+        <div class="score-display">⭐ Score: <span id="score">0</span></div>
+        <button class="sound-btn" id="soundToggle">🔊</button>
+        <button class="rules-btn" id="rulesBtn">ℹ️</button>
+    </header>
+
+    <!-- ========================================== -->
+    <!-- MAIN GAME AREA (POND BACKGROUND)           -->
+    <!-- ========================================== -->
+    <main class="pond-container">
+        
+        <!-- Pond Background Image -->
+        <img src="assets/images/pond-bg.jpg" alt="Pond Background" class="pond-bg">
+        
+        <!-- Frog Character -->
+        <img src="assets/images/frog.png" alt="Frog" class="frog" id="frog">
+        <!-- ========================================== -->
+        <!-- HINT BUTTON - Near Frog (Left Bottom)      -->
+        <!-- ========================================== -->
+        <div class="hint-area">
+            <button class="hint-btn" id="hintBtn">💡 Hint</button>
+        </div>
+        
+        <!-- Game Equation Display Area -->
+        <div class="equation-area" id="equationArea">
+            <!-- Dynamic cards will be inserted here by JavaScript -->
+            <!-- Example structure:
+                <div class="card">
+                    <img src="assets/images/lilypad.png">
+                    <span class="card-value">+8</span>
+                </div>
+                <div class="operator">➕</div>
+                <div class="card empty">
+                    <img src="assets/images/lilypad-empty.png">
+                    <span class="card-value">?</span>
+                </div>
+                <div class="operator">=</div>
+                <div class="card result">
+                    <img src="assets/images/fish.png">
+                    <span class="card-value">+12</span>
+                </div>
+            -->
+        </div>
+
+    </main>
+
+    <!-- ========================================== -->
+<!-- KEYPAD - Right Side (1-0, +, -, ×, Check)  -->
+<!-- ========================================== -->
+<div class="keypad-sidebar">
+    <div class="keypad">
+        <!-- Row 1 -->
+        <button class="num-btn" data-num="7">7</button>
+        <button class="num-btn" data-num="8">8</button>
+        <button class="num-btn" data-num="9">9</button>
+        
+        <!-- Row 2 -->
+        <button class="num-btn" data-num="4">4</button>
+        <button class="num-btn" data-num="5">5</button>
+        <button class="num-btn" data-num="6">6</button>
+        
+        <!-- Row 3 -->
+        <button class="num-btn" data-num="1">1</button>
+        <button class="num-btn" data-num="2">2</button>
+        <button class="num-btn" data-num="3">3</button>
+        
+        <!-- Row 4 -->
+        <button class="num-btn" data-num="0">0</button>
+        <button class="op-btn-keypad" data-op="add">➕</button>
+        <button class="op-btn-keypad" data-op="sub">➖</button>
+        
+        <!-- Row 5 -->
+        <button class="op-btn-keypad" data-op="mul">✖️</button>
+        <button class="check-btn-keypad" id="checkBtn">✓</button>
+    </div>
+</div>
+    
+
+    <!-- ========================================== -->
+<!-- RIGHT SIDE BUTTONS - Clear & Next          -->
+<!-- ========================================== -->
+<div class="right-buttons">
+    <button class="clear-btn" id="clearBtn">⟲ Clear</button>
+    <button class="next-btn" id="nextBtn" disabled>⏩ Next</button>
+</div>
+
+    <!-- ========================================== -->
+    <!-- POPUP OVERLAYS                             -->
+    <!-- ========================================== -->
+    
+    <!-- Overlay Background (shared) -->
+    <div class="overlay" id="overlay" hidden></div>
+    
+    <!-- Hint Popup -->
+    <div class="popup hint-popup" id="hintPopup" hidden>
+        <div class="popup-header">
+            <span class="popup-title">🐸 Frog Says</span>
+            <button class="close-popup" data-close="hintPopup">✖️</button>
+        </div>
+        <div class="popup-body">
+            <p id="hintText">Hint will appear here...</p>
+        </div>
+        <div class="popup-footer">
+            <button class="prev-step" id="prevHint" disabled>⬅️ Previous</button>
+            <span class="step-indicator" id="stepIndicator">Step 1/3</span>
+            <button class="next-step" id="nextHint">Next ➡️</button>
+        </div>
+    </div>
+    
+    <!-- Rules Popup -->
+    <div class="popup rules-popup" id="rulesPopup" hidden>
+        <div class="popup-header">
+            <span class="popup-title">📋 Game Rules</span>
+            <button class="close-popup" data-close="rulesPopup">✖️</button>
+        </div>
+        <div class="popup-body">
+            <ul class="rules-list">
+                <li>🐟 1. You will see 2 or 3 lily pads in the pond</li>
+                <li>🐟 2. Each pad has a number (+ or -)</li>
+                <li>🐟 3. One pad is always empty (❓)</li>
+                <li>🐟 4. Fill in the missing number</li>
+                <li>🐟 5. Use the keypad below to enter numbers</li>
+                <li>🐟 6. Operations: Addition (+), Subtraction (-), Multiplication (×)</li>
+                <li>🐟 7. Stuck? Click 💡 Hint</li>
+                <li>🐟 8. The frog will help you!</li>
+            </ul>
+        </div>
+        <div class="popup-footer">
+            <button class="got-it-btn" id="gotItBtn">👍 Got it, Let's Play!</button>
+        </div>
+    </div>
+
+    <!-- Welcome Popup (First Time) -->
+    <div class="popup welcome-popup" id="welcomePopup" hidden>
+        <div class="popup-body welcome-body">
+            <h2>🐸 Welcome to Frog Math Pond! 🐸</h2>
+            <p>I'm the Math Frog!</p>
+            <p>Let's solve math problems on lily pads together.</p>
+            <p class="welcome-emoji">🧮 🌸 🐟</p>
+        </div>
+        <div class="popup-footer">
+            <button class="start-btn" id="startGameBtn">Yes, Let's Go! 🐸</button>
+        </div>
+    </div>
+
+    <!-- Game Complete Popup -->
+    <div class="popup complete-popup" id="completePopup" hidden>
+        <div class="popup-body complete-body">
+            <h2>🎉 Congratulations! 🎉</h2>
+            <p>You scored <span id="finalScore">0</span> out of 10!</p>
+            <div class="stars" id="starsDisplay">⭐⭐⭐</div>
+            <p class="frog-message">🐸 Frog: "You're a Math Master!"</p>
+        </div>
+        <div class="popup-footer">
+            <button class="home-btn" id="homeBtn">🏠 Home</button>
+            <button class="playagain-btn" id="playAgainBtn">🔄 Play Again</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
