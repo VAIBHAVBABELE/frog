@@ -1,6 +1,7 @@
-/* ========================================== */
-/* 1. RESET & BASE STYLES                     */
-/* ========================================== */
+/* ===== Google Font ===== */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
+
+/* ===== Reset & Base ===== */
 * {
     margin: 0;
     padding: 0;
@@ -12,78 +13,18 @@ body {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-    position: relative;
+    position: fixed;
     background: #1a3a2a;
 }
 
-/* ========================================== */
-/* 2. HEADER STYLES                           */
-/* ========================================== */
-.game-header {
-    position: fixed;
-    top: 0;
-    left: 0;
+/* ===== Game Container ===== */
+.game-container {
     width: 100%;
-    height: 70px;
-    background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 30px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    z-index: 50;
+    height: 100vh;
+    position: relative;
+    margin: 0 auto;
 }
 
-.game-title {
-    font-family: 'Fredoka One', cursive;
-    font-size: 32px;
-    color: #FFFFFF;
-    text-shadow: 3px 3px 0 #1B5E20, 5px 5px 0 rgba(0, 0, 0, 0.1);
-    letter-spacing: 1px;
-}
-
-.score-display {
-    font-size: 28px;
-    font-weight: 700;
-    color: #FFD700;
-    text-shadow: 2px 2px 0 #B8860B;
-    background: rgba(255, 255, 255, 0.15);
-    padding: 8px 25px;
-    border-radius: 50px;
-    margin-left: auto;
-    margin-right: 20px;
-}
-
-.header-buttons {
-    display: flex;
-    gap: 12px;
-}
-
-.sound-btn, .rules-btn {
-    width: 50px;
-    height: 50px;
-    font-size: 28px;
-    background: rgba(255, 255, 255, 0.9);
-    border: 3px solid #FFD700;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.sound-btn:hover, .rules-btn:hover {
-    transform: scale(1.1);
-    background: #FFFFFF;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-}
-
-.sound-btn:active, .rules-btn:active {
-    transform: scale(0.95);
-}
-
-/* ========================================== */
-/* 3. POND CONTAINER (Full Screen)            */
-/* ========================================== */
 .pond-container {
     position: relative;
     width: 100%;
@@ -109,7 +50,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle at 30% 40%, transparent 60%, rgba(255, 255, 255, 0.1) 100%);
+    background: radial-gradient(circle at 30% 40%, transparent 60%, rgba(255, 255, 255, 0.08) 100%);
     z-index: 2;
     pointer-events: none;
     animation: waterShimmer 8s ease-in-out infinite;
@@ -120,825 +61,750 @@ body {
     50% { opacity: 0.6; }
 }
 
-/* Frog Character */
-.frog {
+/* ===== Header ===== */
+.game-header {
     position: absolute;
-    bottom: 140px;
-    left: 30px;
-    width: 180px;
-    height: auto;
-    z-index: 3;
-    filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.2));
-    transition: all 0.3s ease;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(8px);
+}
+
+.game-title {
+    color: white;
+    font-size: 26px;
+    font-weight: 700;
+    text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3);
+    letter-spacing: 2px;
+}
+
+.header-right {
+    display: flex;
+    gap: 10px;
+}
+
+.icon-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    font-size: 26px;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+    transition: all 0.2s;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.frog:hover {
-    transform: scale(1.05);
+.icon-btn:hover {
+    background: rgba(255, 255, 255, 0.35);
+    transform: scale(1.08);
 }
 
-/* Frog emotion animations */
-.frog.happy {
-    animation: frogJump 0.6s ease-in-out;
-}
-
-.frog.sad {
-    animation: frogSad 0.4s ease-in-out;
-    filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.2)) grayscale(0.3);
-}
-
-@keyframes frogJump {
-    0%, 100% { transform: translateY(0); }
-    30% { transform: translateY(-30px) rotate(-5deg); }
-    60% { transform: translateY(-15px) rotate(3deg); }
-}
-
-@keyframes frogSad {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(0.9) translateY(5px); }
-}
-
-/* Speech Bubble from Frog */
-.speech-bubble {
+/* ===== Main Game Area - Absolute Positioned Elements ===== */
+.game-main {
     position: absolute;
-    bottom: 320px;
-    left: 200px;
-    background: #FFFFFF;
-    border: 4px solid #2E7D32;
-    border-radius: 30px 30px 30px 5px;
-    padding: 15px 25px;
-    max-width: 280px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    z-index: 4;
-    font-size: 18px;
-    font-weight: 600;
-    color: #1B5E20;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    pointer-events: none; /* Allow clicking through container */
 }
 
-.speech-bubble::before {
-    content: '';
-    position: absolute;
-    bottom: -20px;
-    left: 20px;
-    width: 0;
-    height: 0;
-    border-left: 20px solid transparent;
-    border-right: 20px solid transparent;
-    border-top: 20px solid #2E7D32;
+.game-main > * {
+    pointer-events: auto; /* Re-enable for interactive elements */
 }
 
-.speech-bubble::after {
-    content: '';
+/* ===== FROG - Position: Top Center (on grass/pond edge) ===== */
+.frog-area {
     position: absolute;
-    bottom: -14px;
-    left: 24px;
-    width: 0;
-    height: 0;
-    border-left: 16px solid transparent;
-    border-right: 16px solid transparent;
-    border-top: 16px solid #FFFFFF;
+    top: 18%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 15;
 }
 
-/* ========================================== */
-/* 4. EQUATION AREA (Cards on Pond)           */
-/* ========================================== */
-.equation-area {
+.frog-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    width: 200px;
+}
+
+.frog-card .card-image {
+    width: 160px;
+    height: 160px;
+    filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.25));
+    position: relative;
+    z-index: 2;
+}
+
+/* Input box on Frog's chest */
+.frog-card .input-wrapper {
     position: absolute;
-    top: 52%;
+    top: 45%;
     left: 50%;
     transform: translate(-50%, -50%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    z-index: 10;
-    background: rgba(255, 255, 255, 0.08);
-    padding: 30px 40px;
-    border-radius: 100px;
-    backdrop-filter: blur(3px);
+    width: 90px;
+    z-index: 3;
 }
 
-.card {
-    position: relative;
-    width: 140px;
-    height: 140px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.25));
-}
-
-.card img {
+.frog-card .slot-input {
     width: 100%;
-    height: 100%;
-    object-fit: contain;
+    padding: 12px 5px;
+    text-align: center;
+    font-size: 28px;
+    font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+    background: rgba(255, 255, 255, 0.95);
+    border: 3px solid #4a9a4a;
+    border-radius: 20px;
+    color: #1a3a1a;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.1), 0 4px 0 #2a6a2a, 0 4px 10px rgba(0,0,0,0.2);
+    outline: none;
+    cursor: pointer;
+    transition: all 0.1s;
 }
 
-.card-value {
+/* ===== LILY PADS - Position: Middle scattered ===== */
+.lilypads-area {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-family: 'Fredoka One', cursive;
-    font-size: 38px;
-    font-weight: 700;
-    color: #FFFFFF;
-    text-shadow: 3px 3px 0 #2E7D32, 5px 5px 0 rgba(0, 0, 0, 0.2);
-    z-index: 11;
-}
-
-/* Empty card special styling */
-.card.empty .card-value {
-    color: #FFE082;
-    text-shadow: 3px 3px 0 #F57F17, 5px 5px 0 rgba(0, 0, 0, 0.2);
-    font-size: 45px;
-}
-
-.card.empty {
-    animation: float 2.5s ease-in-out infinite;
-}
-
-@keyframes float {
-    0%, 100% { transform: translateY(0) rotate(0deg); }
-    50% { transform: translateY(-12px) rotate(2deg); }
-}
-
-/* Fish result card */
-.card.result img {
-    transform: scaleX(-1);
-}
-
-.card.result .card-value {
-    color: #FFD700;
-    text-shadow: 3px 3px 0 #FF8F00, 5px 5px 0 rgba(0, 0, 0, 0.2);
-}
-
-/* Operator styling */
-.operator {
-    font-size: 48px;
-    font-weight: 700;
-    color: #FFFFFF;
-    text-shadow: 3px 3px 0 #E65100, 5px 5px 0 rgba(0, 0, 0, 0.2);
-    background: rgba(255, 152, 0, 0.85);
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
     display: flex;
-    align-items: center;
     justify-content: center;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-    border: 3px solid #FFD700;
+    align-items: center;
+    gap: 40px;
+    z-index: 12;
+    width: auto;
 }
 
-.operator.equals {
-    background: rgba(76, 175, 80, 0.9);
+.lilypad-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    width: 170px;
 }
 
-/* ========================================== */
-/* 5. FOOTER (Keypad & Buttons)               */
-/* ========================================== */
+/* Individual Lily Pad positions offset for natural look */
+.lilypad-card:nth-child(1) {
+    margin-top: -20px;
+    margin-left: -30px;
+}
+
+.lilypad-card:nth-child(2) {
+    margin-top: 20px;
+    margin-left: 30px;
+}
+
+.lilypad-card:nth-child(3) {
+    margin-top: -10px;
+    margin-left: 80px;
+}
+
+.lilypad-card .card-image {
+    width: 130px;
+    height: 130px;
+    filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.25));
+    position: relative;
+    z-index: 2;
+}
+
+/* Input box on Lily Pad's chest (center) */
+.lilypad-card .input-wrapper {
+    position: absolute;
+    top: 48%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 75px;
+    z-index: 3;
+}
+
+.lilypad-card .slot-input {
+    width: 100%;
+    padding: 10px 3px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+    background: rgba(255, 255, 255, 0.95);
+    border: 3px solid #4a9a4a;
+    border-radius: 18px;
+    color: #1a3a1a;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.1), 0 4px 0 #2a6a2a, 0 4px 10px rgba(0,0,0,0.2);
+    outline: none;
+    cursor: pointer;
+    transition: all 0.1s;
+}
+
+/* ===== FISH - Position: Bottom Right (in water) ===== */
+.fish-area {
+    position: absolute;
+    bottom: 20%;
+    right: 8%;
+    z-index: 14;
+}
+
+.fish-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    width: 200px;
+}
+
+.fish-card .card-image {
+    width: 170px;
+    height: 170px;
+    filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.25));
+    position: relative;
+    z-index: 2;
+}
+
+/* Input box on Fish's chest */
+.fish-card .input-wrapper {
+    position: absolute;
+    top: 42%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90px;
+    z-index: 3;
+}
+
+.fish-card .slot-input {
+    width: 100%;
+    padding: 12px 5px;
+    text-align: center;
+    font-size: 28px;
+    font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+    background: rgba(255, 255, 255, 0.95);
+    border: 3px solid #4a9a4a;
+    border-radius: 20px;
+    color: #1a3a1a;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.1), 0 4px 0 #2a6a2a, 0 4px 10px rgba(0,0,0,0.2);
+    outline: none;
+    cursor: pointer;
+    transition: all 0.1s;
+}
+
+/* ===== Input States ===== */
+.slot-input[readonly] {
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+.slot-input.empty {
+    background: #fff9e0;
+    border-color: #d4a017;
+    color: #8a7a2a;
+}
+
+.slot-input.filled {
+    background: #e8f5e8;
+    border-color: #4a9a4a;
+}
+
+.slot-input.correct-highlight {
+    animation: correctPulse 0.5s ease;
+    border-color: #4caf50;
+}
+
+.slot-input.wrong-highlight {
+    animation: wrongShake 0.3s ease;
+    border-color: #f44336;
+}
+
+/* ===== Footer ===== */
 .game-footer {
-    position: fixed;
+    position: absolute;
     bottom: 0;
     left: 0;
-    width: 100%;
-    background: linear-gradient(135deg, rgba(46, 125, 50, 0.95) 0%, rgba(27, 94, 32, 0.95) 100%);
-    padding: 15px 20px;
+    right: 0;
     z-index: 20;
-    backdrop-filter: blur(5px);
-    border-top: 4px solid #FFD700;
-}
-
-.keypad {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
-    max-width: 400px;
-    margin: 0 auto 8px;
-}
-
-.keypad button {
-    padding: 14px 8px;
-    font-family: 'Fredoka One', cursive;
-    font-size: 26px;
-    font-weight: 700;
-    border: 3px solid #1B5E20;
-    border-radius: 20px;
-    background: #FFFFFF;
-    color: #2E7D32;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 5px 0 #1B5E20, 0 6px 10px rgba(0, 0, 0, 0.2);
-}
-
-.keypad button:hover {
-    background: #E8F5E9;
-    transform: translateY(-2px);
-    box-shadow: 0 7px 0 #1B5E20, 0 8px 12px rgba(0, 0, 0, 0.25);
-}
-
-.keypad button:active {
-    transform: translateY(3px);
-    box-shadow: 0 2px 0 #1B5E20, 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-/* Special buttons */
-.negate-btn {
-    background: #FFC107 !important;
-    color: #333 !important;
-    border-color: #F57F17 !important;
-    box-shadow: 0 5px 0 #F57F17, 0 6px 10px rgba(0, 0, 0, 0.2) !important;
-}
-
-.check-btn {
-    background: #4CAF50 !important;
-    color: #FFFFFF !important;
-    border-color: #2E7D32 !important;
-    box-shadow: 0 5px 0 #2E7D32, 0 6px 10px rgba(0, 0, 0, 0.2) !important;
-    grid-column: span 2;
-}
-
-.clear-btn {
-    background: #FF5722 !important;
-    color: #FFFFFF !important;
-    border-color: #BF360C !important;
-    box-shadow: 0 5px 0 #BF360C, 0 6px 10px rgba(0, 0, 0, 0.2) !important;
-}
-
-.action-panel {
+    padding: 15px 20px 20px;
     display: flex;
-    justify-content: center;
-    gap: 18px;
+    align-items: flex-end;
+    justify-content: space-between;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.3), transparent);
+    backdrop-filter: blur(5px);
+}
+
+/* ===== Progress Dots ===== */
+.progress-container {
+    flex: 1;
+    padding-right: 20px;
+}
+
+.progress-dots {
+    display: flex;
+    gap: 8px;
     flex-wrap: wrap;
 }
 
-.action-panel button {
-    padding: 14px 28px;
-    font-family: 'Fredoka One', cursive;
+.progress-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #6a8a6a;
+    transition: all 0.3s;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.progress-dot.completed {
+    background: #4caf50;
+    box-shadow: 0 0 10px #4caf50, 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.progress-dot.current {
+    background: #ffd700;
+    box-shadow: 0 0 12px #ffd700, 0 2px 4px rgba(0, 0, 0, 0.2);
+    transform: scale(1.3);
+}
+
+.progress-dot.pending {
+    background: #9a9a9a;
+    opacity: 0.6;
+}
+
+/* ===== Done Button ===== */
+.done-btn {
+    background: linear-gradient(145deg, #4caf50, #388e3c);
+    border: none;
+    padding: 16px 35px;
+    border-radius: 50px;
     font-size: 24px;
     font-weight: 700;
-    border: none;
-    border-radius: 50px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
     cursor: pointer;
-    transition: all 0.25s ease;
-    box-shadow: 0 5px 0 rgba(0, 0, 0, 0.2), 0 6px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 0 #2a6a2a, 0 4px 15px rgba(0, 0, 0, 0.25);
+    border: 2px solid #8bc34a;
+    transition: all 0.1s;
 }
 
-.op-btn {
-    background: linear-gradient(135deg, #FF8F00, #F57C00);
-    color: #FFFFFF;
-    text-shadow: 1px 1px 0 #E65100;
-    min-width: 75px;
+.done-btn:active {
+    transform: translateY(6px);
+    box-shadow: 0 2px 0 #2a6a2a, 0 4px 15px rgba(0, 0, 0, 0.25);
 }
 
-.op-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 0 rgba(0, 0, 0, 0.2), 0 10px 15px rgba(0, 0, 0, 0.25);
-}
-
-.op-btn:active {
-    transform: translateY(3px);
-    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.hint-btn {
-    background: linear-gradient(135deg, #FFC107, #FFA000);
-    color: #333;
-    text-shadow: 1px 1px 0 #FFE082;
-}
-
-.next-btn {
-    background: linear-gradient(135deg, #2196F3, #1565C0);
-    color: #FFFFFF;
-    text-shadow: 1px 1px 0 #0D47A1;
-}
-
-.next-btn:disabled {
-    opacity: 0.5;
+.done-btn:disabled {
+    opacity: 0.6;
+    transform: none;
+    box-shadow: 0 8px 0 #2a6a2a, 0 4px 15px rgba(0, 0, 0, 0.25);
     cursor: not-allowed;
-    transform: none;
-    box-shadow: 0 5px 0 rgba(0, 0, 0, 0.2);
 }
 
-.next-btn:disabled:hover {
-    transform: none;
+.check-icon {
+    font-size: 30px;
 }
 
-/* ========================================== */
-/* 6. POPUP STYLES (z-index: 100+)            */
-/* ========================================== */
-.overlay {
+/* ===== Message Toast ===== */
+.message-toast {
+    position: absolute;
+    bottom: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 14px 30px;
+    border-radius: 50px;
+    font-size: 20px;
+    font-weight: 600;
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    white-space: nowrap;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.message-toast.show {
+    opacity: 1;
+}
+
+.message-toast.success {
+    background: rgba(76, 175, 80, 0.95);
+}
+
+.message-toast.error {
+    background: rgba(244, 67, 54, 0.95);
+}
+
+/* ===== Modal Overlay ===== */
+.modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(5px);
-    z-index: 90;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
 }
 
-.popup {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: linear-gradient(135deg, #FFF9C4 0%, #FFF176 100%);
-    border: 5px solid #2E7D32;
-    border-radius: 30px;
-    padding: 25px;
-    min-width: 380px;
-    max-width: 520px;
-    z-index: 100;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 10px 0 #1B5E20;
-    animation: popupAppear 0.3s ease-out;
+.modal-overlay.active {
+    display: flex;
 }
 
-@keyframes popupAppear {
-    from {
-        opacity: 0;
-        transform: translate(-50%, -45%) scale(0.9);
-    }
-    to {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
-    }
+/* ===== Keypad Modal ===== */
+.keypad-container {
+    background: linear-gradient(145deg, #2a5a3a, #1a4a2a);
+    padding: 30px;
+    border-radius: 40px;
+    box-shadow: 0 20px 0 #0a2a0a, 0 30px 50px rgba(0, 0, 0, 0.4);
+    border: 4px solid #8fbc8f;
+    max-width: 380px;
+    width: 90%;
 }
 
-.popup-header {
+.keypad-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 3px solid #2E7D32;
-    padding-bottom: 12px;
-    margin-bottom: 18px;
-}
-
-.popup-title {
-    font-family: 'Fredoka One', cursive;
-    font-size: 26px;
-    color: #2E7D32;
-    text-shadow: 2px 2px 0 #A5D6A7;
-}
-
-.close-popup {
-    background: #FF5722;
-    border: 3px solid #BF360C;
-    color: #FFFFFF;
-    font-size: 22px;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    box-shadow: 0 4px 0 #BF360C;
-}
-
-.close-popup:hover {
-    transform: scale(1.1);
-}
-
-.close-popup:active {
-    transform: scale(0.95);
-    box-shadow: 0 2px 0 #BF360C;
-}
-
-.popup-body {
-    margin-bottom: 25px;
-    font-size: 18px;
-    color: #333;
-    line-height: 1.6;
-}
-
-.rules-list {
-    list-style: none;
-    padding: 0;
-}
-
-.rules-list li {
-    padding: 10px 0;
-    font-size: 17px;
-    font-weight: 600;
-    border-bottom: 1px dashed #81C784;
-}
-
-.rules-list li:last-child {
-    border-bottom: none;
-}
-
-.popup-footer {
-    display: flex;
-    justify-content: center;
-    gap: 18px;
-}
-
-.popup-footer button {
-    padding: 14px 28px;
-    font-family: 'Fredoka One', cursive;
-    font-size: 20px;
-    font-weight: 700;
-    border: none;
-    border-radius: 50px;
-    cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 0 5px 0 rgba(0, 0, 0, 0.2);
-}
-
-.got-it-btn, .start-btn, .home-btn {
-    background: #4CAF50;
-    color: #FFFFFF;
-    text-shadow: 1px 1px 0 #2E7D32;
-}
-
-.playagain-btn {
-    background: #2196F3;
-    color: #FFFFFF;
-    text-shadow: 1px 1px 0 #1565C0;
-}
-
-/* Hint step indicator */
-.step-indicator {
-    font-size: 18px;
-    font-weight: 700;
-    color: #2E7D32;
-    padding: 0 15px;
-}
-
-.prev-step, .next-step {
-    padding: 10px 20px;
-    font-size: 18px;
-    background: #FF8F00;
-    color: #FFFFFF;
-    border: none;
-    border-radius: 30px;
-    cursor: pointer;
-    box-shadow: 0 3px 0 #E65100;
-}
-
-.prev-step:disabled, .next-step:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
-
-/* Welcome popup specific */
-.welcome-body {
-    text-align: center;
-}
-
-.welcome-body h2 {
-    font-family: 'Fredoka One', cursive;
-    font-size: 32px;
-    color: #2E7D32;
     margin-bottom: 20px;
 }
 
-.welcome-emoji {
-    font-size: 50px;
-    margin: 20px 0;
+.keypad-header h3 {
+    color: #f0e68c;
+    font-size: 24px;
+    text-shadow: 2px 2px 0 #1a3a1a;
 }
 
-/* Complete popup stars */
-.stars {
-    font-size: 50px;
-    margin: 20px 0;
-    letter-spacing: 10px;
-}
-
-.complete-body {
-    text-align: center;
-}
-
-.frog-message {
-    font-size: 22px;
-    font-weight: 700;
-    color: #2E7D32;
-    margin-top: 15px;
-}
-
-/* ========================================== */
-/* 7. RESPONSIVE STYLES                       */
-/* ========================================== */
-@media (max-width: 1024px) {
-    .game-title { font-size: 26px; }
-    .score-display { font-size: 22px; }
-    .card { width: 120px; height: 120px; }
-    .card-value { font-size: 32px; }
-    .frog { width: 140px; bottom: 130px; }
-}
-
-@media (max-width: 768px) {
-    .game-header { padding: 0 15px; height: 60px; }
-    .game-title { font-size: 22px; }
-    .score-display { font-size: 18px; padding: 5px 15px; }
-    .sound-btn, .rules-btn { width: 40px; height: 40px; font-size: 22px; }
-    
-    .card { width: 100px; height: 100px; }
-    .card-value { font-size: 28px; }
-    .operator { font-size: 36px; width: 45px; height: 45px; }
-    .equation-area { gap: 8px; padding: 20px; }
-    
-    .frog { width: 120px; bottom: 120px; left: 15px; }
-    .speech-bubble { bottom: 240px; left: 140px; max-width: 200px; font-size: 14px; }
-    
-    .keypad button { padding: 12px 5px; font-size: 20px; }
-    .action-panel button { padding: 10px 18px; font-size: 18px; }
-    
-    .popup { min-width: 320px; padding: 20px; }
-}
-
-@media (max-width: 480px) {
-    .game-title { font-size: 16px; }
-    .score-display { font-size: 14px; padding: 4px 10px; }
-    
-    .card { width: 75px; height: 75px; }
-    .card-value { font-size: 22px; }
-    .operator { font-size: 28px; width: 35px; height: 35px; }
-    .equation-area { gap: 5px; }
-    
-    .frog { width: 90px; bottom: 110px; }
-    .speech-bubble { display: none; }
-    
-    .keypad { gap: 6px; }
-    .keypad button { padding: 10px 3px; font-size: 16px; }
-    .action-panel { gap: 8px; }
-    .action-panel button { padding: 8px 12px; font-size: 16px; }
-    
-    .popup { min-width: 280px; padding: 15px; }
-}
-
-/* ========================================== */
-/* KEYPAD - RIGHT SIDEBAR                     */
-/* ========================================== */
-.keypad-sidebar {
-    position: absolute;
-    top: 120px;
-    right: 20px;
-    z-index: 15;
-    background: rgba(46, 125, 50, 0.85);
-    padding: 15px 12px;
-    border-radius: 25px;
-    backdrop-filter: blur(5px);
-    border: 3px solid #FFD700;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-}
-
-.keypad-sidebar .keypad {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-}
-
-.keypad-sidebar .keypad button {
-    width: 60px;
-    height: 60px;
-    padding: 0;
-    font-family: 'Fredoka One', cursive;
-    font-size: 26px;
-    font-weight: 700;
-    border: 3px solid #1B5E20;
-    border-radius: 18px;
+.close-btn {
+    background: none;
+    border: none;
+    color: #f0e68c;
+    font-size: 36px;
     cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 0 #1B5E20, 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 45px;
+    height: 45px;
     display: flex;
     align-items: center;
     justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s;
 }
 
-.keypad-sidebar .num-btn {
-    background: #FFFFFF;
-    color: #2E7D32;
+.close-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
 }
 
-.keypad-sidebar .op-btn-keypad {
-    background: #FF8F00;
-    color: #FFFFFF;
-    border-color: #E65100 !important;
-    box-shadow: 0 4px 0 #E65100, 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+.keypad-display {
+    background: #0a1a0a;
+    color: #a0e0a0;
+    padding: 20px;
+    border-radius: 25px;
+    margin-bottom: 25px;
+    font-size: 42px;
+    text-align: center;
+    font-weight: 700;
+    letter-spacing: 4px;
+    border: inset 4px #1a3a1a;
+    font-family: monospace;
 }
 
-.keypad-sidebar .check-btn-keypad {
-    background: #4CAF50;
-    color: #FFFFFF;
-    border-color: #2E7D32 !important;
-    box-shadow: 0 4px 0 #2E7D32, 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+.keypad-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.key-btn {
+    background: linear-gradient(145deg, #e8e0c0, #d4c8a0);
+    border: none;
+    border-radius: 20px;
+    padding: 18px 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a3a1a;
+    box-shadow: 0 8px 0 #7a6a4a, 0 5px 10px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: all 0.05s;
+    border: 2px solid #f5f0d0;
+}
+
+.key-btn:active {
+    transform: translateY(6px);
+    box-shadow: 0 2px 0 #7a6a4a, 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+.key-special {
+    background: linear-gradient(145deg, #deb887, #c8a86e);
+}
+
+.key-clear {
+    background: linear-gradient(145deg, #cd853f, #b8732a);
+    color: white;
+}
+
+.key-submit {
+    background: linear-gradient(145deg, #3cb371, #2e9a5e);
+    color: white;
+}
+
+.key-zero {
     grid-column: span 2;
 }
 
-.keypad-sidebar .keypad button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 0 #1B5E20, 0 6px 10px rgba(0, 0, 0, 0.25);
+.key-cancel {
+    grid-column: span 2;
+    background: linear-gradient(145deg, #dc143c, #b01030);
+    color: white;
 }
 
-.keypad-sidebar .op-btn-keypad:hover {
-    box-shadow: 0 6px 0 #E65100, 0 6px 10px rgba(0, 0, 0, 0.25) !important;
+/* ===== Info Modal (Rules & Help) ===== */
+.info-modal {
+    background: linear-gradient(145deg, #f5f0e0, #e8e0c8);
+    padding: 35px;
+    border-radius: 45px;
+    box-shadow: 0 20px 0 #8a7a5a, 0 30px 50px rgba(0, 0, 0, 0.4);
+    border: 4px solid #d4c8a0;
+    max-width: 420px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
 }
 
-.keypad-sidebar .check-btn-keypad:hover {
-    box-shadow: 0 6px 0 #2E7D32, 0 6px 10px rgba(0, 0, 0, 0.25) !important;
-}
-
-.keypad-sidebar .keypad button:active {
-    transform: translateY(3px);
-    box-shadow: 0 1px 0 #1B5E20, 0 3px 6px rgba(0, 0, 0, 0.2);
-}
-
-/* Active operation button */
-.keypad-sidebar .op-btn-keypad.active {
-    background: #FFD700;
-    border-color: #FFFFFF !important;
-    box-shadow: 0 0 15px #FFD700 !important;
-}
-
-/* ========================================== */
-/* HINT BUTTON - Near Frog                    */
-/* ========================================== */
-.hint-area {
-    position: absolute;
-    bottom: 30px;
-    left: 200px;
-    z-index: 15;
-}
-
-.hint-btn {
-    padding: 14px 28px;
-    font-family: 'Fredoka One', cursive;
-    font-size: 22px;
-    font-weight: 700;
-    background: linear-gradient(135deg, #FFC107, #FFA000);
-    color: #333;
-    text-shadow: 1px 1px 0 #FFE082;
-    border: 3px solid #FFD700;
-    border-radius: 50px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 5px 0 rgba(0, 0, 0, 0.2), 0 6px 12px rgba(0, 0, 0, 0.2);
-}
-
-.hint-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 0 rgba(0, 0, 0, 0.2), 0 10px 15px rgba(0, 0, 0, 0.25);
-}
-
-.hint-btn:active {
-    transform: translateY(3px);
-    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-/* ========================================== */
-/* RIGHT BUTTONS - Clear & Next               */
-/* ========================================== */
-.right-buttons {
-    position: absolute;
-    bottom: 30px;
-    right: 20px;
-    z-index: 15;
+.modal-header {
     display: flex;
-    gap: 15px;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
 }
 
-.clear-btn {
-    padding: 14px 25px;
-    font-family: 'Fredoka One', cursive;
-    font-size: 20px;
+.modal-header h2 {
+    color: #2a5a3a;
+    font-size: 28px;
     font-weight: 700;
-    background: linear-gradient(135deg, #FF5722, #E64A19);
-    color: #FFFFFF;
-    text-shadow: 1px 1px 0 #BF360C;
-    border: 3px solid #FF8A65;
-    border-radius: 50px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 5px 0 rgba(0, 0, 0, 0.2), 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
-.next-btn {
-    padding: 14px 30px;
-    font-family: 'Fredoka One', cursive;
+.modal-body {
+    color: #1a3a1a;
+    font-size: 16px;
+}
+
+.rule-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 20px;
+    margin-bottom: 12px;
+}
+
+.rule-icon {
+    width: 45px;
+    height: 45px;
+}
+
+.rule-divider {
+    height: 2px;
+    background: #8a7a5a;
+    margin: 25px 0;
+}
+
+.rule-list {
+    padding-left: 30px;
+}
+
+.rule-list li {
+    margin: 10px 0;
+}
+
+.example-box, .tip-box {
+    background: rgba(255, 255, 255, 0.6);
+    padding: 18px;
+    border-radius: 20px;
+    margin: 18px 0;
+}
+
+.modal-btn {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(145deg, #4caf50, #388e3c);
+    border: none;
+    border-radius: 35px;
     font-size: 22px;
     font-weight: 700;
-    background: linear-gradient(135deg, #2196F3, #1565C0);
-    color: #FFFFFF;
-    text-shadow: 1px 1px 0 #0D47A1;
-    border: 3px solid #90CAF9;
-    border-radius: 50px;
+    color: white;
     cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 5px 0 rgba(0, 0, 0, 0.2), 0 6px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 0 #2a6a2a;
+    border: 2px solid #8bc34a;
+    margin-top: 25px;
+    transition: all 0.1s;
 }
 
-.clear-btn:hover, .next-btn:hover:not(:disabled) {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 0 rgba(0, 0, 0, 0.2), 0 10px 15px rgba(0, 0, 0, 0.25);
+.modal-btn:active {
+    transform: translateY(6px);
+    box-shadow: 0 2px 0 #2a6a2a;
 }
 
-.clear-btn:active, .next-btn:active:not(:disabled) {
-    transform: translateY(3px);
-    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.2);
+/* ===== Completion Modal ===== */
+.completion-card {
+    background: linear-gradient(145deg, #2a6a4a, #1a5a3a);
+    padding: 45px;
+    border-radius: 55px;
+    box-shadow: 0 20px 0 #0a3a1a, 0 30px 50px rgba(0, 0, 0, 0.4);
+    border: 4px solid #a0d8a0;
+    text-align: center;
+    max-width: 420px;
+    width: 90%;
 }
 
-.next-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+.celebration-icon {
+    width: 110px;
+    height: 110px;
+    margin-bottom: 25px;
+    animation: bounce 0.6s infinite alternate;
 }
 
-/* Adjust Frog Position */
-.frog {
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-    width: 160px;
-    height: auto;
-    z-index: 3;
+@keyframes bounce {
+    from { transform: translateY(0); }
+    to { transform: translateY(-20px); }
 }
 
-/* Remove old footer styles */
-.game-footer, .action-panel, .frog-button, .operation-panel, .equation-actions {
-    display: none;
+.completion-card h2 {
+    color: #ffd700;
+    font-size: 36px;
+    text-shadow: 3px 3px 0 #1a3a1a;
+    margin-bottom: 25px;
 }
 
-/* ========================================== */
-/* RESPONSIVE ADJUSTMENTS                     */
-/* ========================================== */
-@media (max-width: 1024px) {
-    .keypad-sidebar {
-        top: 100px;
-        right: 10px;
-        padding: 10px;
-    }
-    
-    .keypad-sidebar .keypad button {
-        width: 50px;
-        height: 50px;
-        font-size: 22px;
-    }
-    
-    .hint-area {
-        left: 160px;
-        bottom: 20px;
-    }
-    
-    .hint-btn {
-        padding: 12px 22px;
-        font-size: 18px;
-    }
-    
-    .right-buttons {
-        bottom: 20px;
-        right: 10px;
-        gap: 10px;
-    }
-    
-    .clear-btn, .next-btn {
-        padding: 12px 20px;
-        font-size: 18px;
-    }
+.final-score {
+    color: #e0e0a0;
+    font-size: 32px;
+    margin: 25px 0;
+    font-weight: 700;
 }
 
-@media (max-width: 768px) {
-    .keypad-sidebar {
-        top: 80px;
-        right: 5px;
-        padding: 8px;
-    }
-    
-    .keypad-sidebar .keypad {
-        gap: 5px;
-    }
-    
-    .keypad-sidebar .keypad button {
-        width: 45px;
-        height: 45px;
+.performance-message {
+    color: #c0e0c0;
+    font-size: 22px;
+    margin-bottom: 35px;
+}
+
+/* ===== Animations ===== */
+@keyframes correctPulse {
+    0%, 100% { background: rgba(255, 255, 255, 0.95); }
+    50% { background: #c8e6c9; }
+}
+
+@keyframes wrongShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 500px) {
+    .game-title {
         font-size: 20px;
     }
     
-    .frog {
+    .icon-btn {
+        width: 42px;
+        height: 42px;
+        font-size: 22px;
+    }
+    
+    .frog-card .card-image {
+        width: 130px;
+        height: 130px;
+    }
+    
+    .frog-card .input-wrapper {
+        width: 75px;
+    }
+    
+    .frog-card .slot-input {
+        font-size: 22px;
+        padding: 10px 3px;
+    }
+    
+    .lilypad-card .card-image {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .lilypad-card .input-wrapper {
+        width: 60px;
+    }
+    
+    .lilypad-card .slot-input {
+        font-size: 20px;
+        padding: 8px 2px;
+    }
+    
+    .fish-card .card-image {
+        width: 140px;
+        height: 140px;
+    }
+    
+    .fish-card .input-wrapper {
+        width: 75px;
+    }
+    
+    .fish-card .slot-input {
+        font-size: 22px;
+        padding: 10px 3px;
+    }
+    
+    .lilypads-area {
+        gap: 20px;
+    }
+    
+    .done-btn {
+        padding: 14px 25px;
+        font-size: 20px;
+    }
+    
+    .progress-dot {
+        width: 11px;
+        height: 11px;
+    }
+}
+
+@media (max-width: 380px) {
+    .lilypads-area {
+        gap: 10px;
+    }
+    
+    .lilypad-card .card-image {
+        width: 85px;
+        height: 85px;
+    }
+    
+    .frog-card .card-image {
+        width: 110px;
+        height: 110px;
+    }
+    
+    .fish-card .card-image {
         width: 120px;
-        bottom: 15px;
-        left: 10px;
-    }
-    
-    .hint-area {
-        left: 130px;
-        bottom: 15px;
-    }
-    
-    .hint-btn {
-        padding: 10px 18px;
-        font-size: 16px;
-    }
-    
-    .right-buttons {
-        bottom: 15px;
-        right: 5px;
-        gap: 8px;
-    }
-    
-    .clear-btn, .next-btn {
-        padding: 10px 15px;
-        font-size: 16px;
+        height: 120px;
     }
 }

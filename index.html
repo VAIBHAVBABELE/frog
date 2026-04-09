@@ -2,174 +2,169 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Frog Math Pond</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🐸 Math Pond Game</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    
-    <!-- ========================================== -->
-    <!-- HEADER SECTION                             -->
-    <!-- ========================================== -->
-    <header class="game-header">
-        <h1 class="game-title">🐸 Frog Math Pond</h1>
-        <div class="score-display">⭐ Score: <span id="score">0</span></div>
-        <button class="sound-btn" id="soundToggle">🔊</button>
-        <button class="rules-btn" id="rulesBtn">ℹ️</button>
-    </header>
-
-    <!-- ========================================== -->
-    <!-- MAIN GAME AREA (POND BACKGROUND)           -->
-    <!-- ========================================== -->
-    <main class="pond-container">
+    <div class="game-container">
+    <div class="pond-container">
+        <!-- Background Image -->
+         <img src="assets/images/pond-bg.jpg" alt="Pond Background" class="pond-bg">
+        <!-- Header -->
+        <header class="game-header">
+            <button class="icon-btn" id="rulesBtn" title="Rules">📜</button>
+            <h1 class="game-title">🐸 MATH POND</h1>
+            <div class="header-right">
+                <button class="icon-btn" id="voiceToggle" title="Sound ON">🔊</button>
+                <button class="icon-btn" id="helpBtn" title="Help">ℹ️</button>
+            </div>
+        </header>
         
-        <!-- Pond Background Image -->
-        <img src="assets/images/pond-bg.jpg" alt="Pond Background" class="pond-bg">
-        
-        <!-- Frog Character -->
-        <img src="assets/images/frog.png" alt="Frog" class="frog" id="frog">
-        <!-- ========================================== -->
-        <!-- HINT BUTTON - Near Frog (Left Bottom)      -->
-        <!-- ========================================== -->
-        <div class="hint-area">
-            <button class="hint-btn" id="hintBtn">💡 Hint</button>
-        </div>
-        
-        <!-- Game Equation Display Area -->
-        <div class="equation-area" id="equationArea">
-            <!-- Dynamic cards will be inserted here by JavaScript -->
-            <!-- Example structure:
-                <div class="card">
-                    <img src="assets/images/lilypad.png">
-                    <span class="card-value">+8</span>
+        <!-- Main Game Area -->
+        <main class="game-main">
+            <!-- Frog Area (Addition) -->
+            <div class="frog-area">
+                <div class="card frog-card">
+                    <img src="assets/images/frog.png" alt="Frog" class="card-image">
+                    <div class="input-wrapper">
+                        <input type="text" class="slot-input" id="frogInput" data-type="add" readonly>
+                    </div>
                 </div>
-                <div class="operator">➕</div>
-                <div class="card empty">
-                    <img src="assets/images/lilypad-empty.png">
-                    <span class="card-value">?</span>
+            </div>
+            
+            <!-- Lily Pads Area (Operands) -->
+            <div class="lilypads-area" id="lilypadsContainer">
+                <!-- Dynamic lily pads will be inserted here -->
+            </div>
+            
+            <!-- Fish Area (Multiplication) -->
+            <div class="fish-area">
+                <div class="card fish-card">
+                    <div class="input-wrapper">
+                        <input type="text" class="slot-input" id="fishInput" data-type="mul" readonly>
+                    </div>
+                    <img src="assets/images/fish.png" alt="Fish" class="card-image">
                 </div>
-                <div class="operator">=</div>
-                <div class="card result">
-                    <img src="assets/images/fish.png">
-                    <span class="card-value">+12</span>
+            </div>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="game-footer">
+            <div class="progress-container">
+                <div class="progress-dots" id="progressDots"></div>
+            </div>
+            <button class="done-btn" id="doneBtn">
+                <span class="check-icon">✓</span> DONE
+            </button>
+        </footer>
+        
+        <!-- Message Toast -->
+        <div class="message-toast" id="messageToast"></div>
+    </div>
+    </div>
+    
+    <!-- Keypad Modal -->
+    <div class="modal-overlay" id="keypadModal">
+        <div class="keypad-container">
+            <div class="keypad-header">
+                <h3>🔢 Enter Number</h3>
+                <button class="close-btn" id="closeKeypad">&times;</button>
+            </div>
+            <div class="keypad-display" id="keypadDisplay">0</div>
+            <div class="keypad-grid">
+                <button class="key-btn" data-key="7">7</button>
+                <button class="key-btn" data-key="8">8</button>
+                <button class="key-btn" data-key="9">9</button>
+                <button class="key-btn key-special" data-key="-">−</button>
+                
+                <button class="key-btn" data-key="4">4</button>
+                <button class="key-btn" data-key="5">5</button>
+                <button class="key-btn" data-key="6">6</button>
+                <button class="key-btn key-clear" id="keypadClear">⌫</button>
+                
+                <button class="key-btn" data-key="1">1</button>
+                <button class="key-btn" data-key="2">2</button>
+                <button class="key-btn" data-key="3">3</button>
+                <button class="key-btn key-submit" id="keypadSubmit">✓</button>
+                
+                <button class="key-btn key-zero" data-key="0">0</button>
+                <button class="key-btn key-cancel" id="keypadCancel">✗ Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Rules Modal -->
+    <div class="modal-overlay" id="rulesModal">
+        <div class="info-modal">
+            <div class="modal-header">
+                <h2>📜 Game Rules</h2>
+                <button class="close-btn" id="closeRules">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="rule-item">
+                    <img src="assets/images/lilypad.png" alt="Lily Pad" class="rule-icon">
+                    <span>Lily Pad = Number (Operand)</span>
                 </div>
-            -->
-        </div>
-
-    </main>
-
-    <!-- ========================================== -->
-<!-- KEYPAD - Right Side (1-0, +, -, ×, Check)  -->
-<!-- ========================================== -->
-<div class="keypad-sidebar">
-    <div class="keypad">
-        <!-- Row 1 -->
-        <button class="num-btn" data-num="7">7</button>
-        <button class="num-btn" data-num="8">8</button>
-        <button class="num-btn" data-num="9">9</button>
-        
-        <!-- Row 2 -->
-        <button class="num-btn" data-num="4">4</button>
-        <button class="num-btn" data-num="5">5</button>
-        <button class="num-btn" data-num="6">6</button>
-        
-        <!-- Row 3 -->
-        <button class="num-btn" data-num="1">1</button>
-        <button class="num-btn" data-num="2">2</button>
-        <button class="num-btn" data-num="3">3</button>
-        
-        <!-- Row 4 -->
-        <button class="num-btn" data-num="0">0</button>
-        <button class="op-btn-keypad" data-op="add">➕</button>
-        <button class="op-btn-keypad" data-op="sub">➖</button>
-        
-        <!-- Row 5 -->
-        <button class="op-btn-keypad" data-op="mul">✖️</button>
-        <button class="check-btn-keypad" id="checkBtn">✓</button>
-    </div>
-</div>
-    
-
-    <!-- ========================================== -->
-<!-- RIGHT SIDE BUTTONS - Clear & Next          -->
-<!-- ========================================== -->
-<div class="right-buttons">
-    <button class="clear-btn" id="clearBtn">⟲ Clear</button>
-    <button class="next-btn" id="nextBtn" disabled>⏩ Next</button>
-</div>
-
-    <!-- ========================================== -->
-    <!-- POPUP OVERLAYS                             -->
-    <!-- ========================================== -->
-    
-    <!-- Overlay Background (shared) -->
-    <div class="overlay" id="overlay" hidden></div>
-    
-    <!-- Hint Popup -->
-    <div class="popup hint-popup" id="hintPopup" hidden>
-        <div class="popup-header">
-            <span class="popup-title">🐸 Frog Says</span>
-            <button class="close-popup" data-close="hintPopup">✖️</button>
-        </div>
-        <div class="popup-body">
-            <p id="hintText">Hint will appear here...</p>
-        </div>
-        <div class="popup-footer">
-            <button class="prev-step" id="prevHint" disabled>⬅️ Previous</button>
-            <span class="step-indicator" id="stepIndicator">Step 1/3</span>
-            <button class="next-step" id="nextHint">Next ➡️</button>
+                <div class="rule-item">
+                    <img src="assets/images/frog.png" alt="Frog" class="rule-icon">
+                    <span>Frog = Addition Result (Sum)</span>
+                </div>
+                <div class="rule-item">
+                    <img src="assets/images/fish.png" alt="Fish" class="rule-icon">
+                    <span>Fish = Multiplication Result (Product)</span>
+                </div>
+                <div class="rule-divider"></div>
+                <ul class="rule-list">
+                    <li>Click any box to enter a number</li>
+                    <li>Fill all empty boxes</li>
+                    <li>Press DONE to check your answer</li>
+                    <li>15 questions total</li>
+                    <li>Difficulty increases as you progress</li>
+                </ul>
+            </div>
+            <button class="modal-btn" id="gotItBtn">GOT IT!</button>
         </div>
     </div>
     
-    <!-- Rules Popup -->
-    <div class="popup rules-popup" id="rulesPopup" hidden>
-        <div class="popup-header">
-            <span class="popup-title">📋 Game Rules</span>
-            <button class="close-popup" data-close="rulesPopup">✖️</button>
-        </div>
-        <div class="popup-body">
-            <ul class="rules-list">
-                <li>🐟 1. You will see 2 or 3 lily pads in the pond</li>
-                <li>🐟 2. Each pad has a number (+ or -)</li>
-                <li>🐟 3. One pad is always empty (❓)</li>
-                <li>🐟 4. Fill in the missing number</li>
-                <li>🐟 5. Use the keypad below to enter numbers</li>
-                <li>🐟 6. Operations: Addition (+), Subtraction (-), Multiplication (×)</li>
-                <li>🐟 7. Stuck? Click 💡 Hint</li>
-                <li>🐟 8. The frog will help you!</li>
-            </ul>
-        </div>
-        <div class="popup-footer">
-            <button class="got-it-btn" id="gotItBtn">👍 Got it, Let's Play!</button>
-        </div>
-    </div>
-
-    <!-- Welcome Popup (First Time) -->
-    <div class="popup welcome-popup" id="welcomePopup" hidden>
-        <div class="popup-body welcome-body">
-            <h2>🐸 Welcome to Frog Math Pond! 🐸</h2>
-            <p>I'm the Math Frog!</p>
-            <p>Let's solve math problems on lily pads together.</p>
-            <p class="welcome-emoji">🧮 🌸 🐟</p>
-        </div>
-        <div class="popup-footer">
-            <button class="start-btn" id="startGameBtn">Yes, Let's Go! 🐸</button>
+    <!-- Help Modal -->
+    <div class="modal-overlay" id="helpModal">
+        <div class="info-modal">
+            <div class="modal-header">
+                <h2>ℹ️ How to Play</h2>
+                <button class="close-btn" id="closeHelp">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 15px;"><strong>Objective:</strong> Find the missing numbers!</p>
+                <div class="example-box">
+                    <p><strong>Example:</strong></p>
+                    <p>Lily Pads: 3 and 5</p>
+                    <p>→ Frog (Add): 8</p>
+                    <p>→ Fish (Multiply): 15</p>
+                </div>
+                <div class="tip-box">
+                    <p><strong>💡 Tips:</strong></p>
+                    <p>• Use negative sign (−) for negative numbers</p>
+                    <p>• You can edit any box anytime</p>
+                    <p>• Click 🔊 to mute/unmute sounds</p>
+                </div>
+            </div>
+            <button class="modal-btn" id="gotHelpBtn">GOT IT!</button>
         </div>
     </div>
-
-    <!-- Game Complete Popup -->
-    <div class="popup complete-popup" id="completePopup" hidden>
-        <div class="popup-body complete-body">
-            <h2>🎉 Congratulations! 🎉</h2>
-            <p>You scored <span id="finalScore">0</span> out of 10!</p>
-            <div class="stars" id="starsDisplay">⭐⭐⭐</div>
-            <p class="frog-message">🐸 Frog: "You're a Math Master!"</p>
-        </div>
-        <div class="popup-footer">
-            <button class="home-btn" id="homeBtn">🏠 Home</button>
-            <button class="playagain-btn" id="playAgainBtn">🔄 Play Again</button>
+    
+    <!-- Completion Modal -->
+    <div class="modal-overlay" id="completionModal">
+        <div class="completion-card">
+            <img src="assets/images/frog.png" alt="Frog" class="celebration-icon">
+            <h2>🎉 Game Complete! 🎉</h2>
+            <div class="final-score">
+                Your Score: <span id="finalScore">0</span>/15
+            </div>
+            <div class="performance-message" id="performanceMessage">
+                Great job!
+            </div>
+            <button class="modal-btn" id="playAgainBtn">↻ Play Again</button>
         </div>
     </div>
 

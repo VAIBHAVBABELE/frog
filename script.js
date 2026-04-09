@@ -1,716 +1,638 @@
-// ==========================================
-// FROG MATH POND - Complete Game Logic
-// ==========================================
+// ===== Math Pond Game - Complete JavaScript =====
 
-// ==========================================
-// 1. GAME STATE VARIABLES
-// ==========================================
-let currentScore = 0;
-let currentQuestion = 1;
-const totalQuestions = 10;
-let currentProblem = null;
-let userInput = '';
-let isNegative = false;
-let hintStep = 0;
-let soundEnabled = true;
-let gameActive = true;
-let currentHints = [];
-
-// Range: Starts easy, gets harder
-let currentMin = 0;
-let currentMax = 10;
-
-// ==========================================
-// 2. DOM ELEMENTS
-// ==========================================
-const scoreDisplay = document.getElementById('score');
-const equationArea = document.getElementById('equationArea');
-const frog = document.getElementById('frog');
-const soundToggle = document.getElementById('soundToggle');
-const rulesBtn = document.getElementById('rulesBtn');
-const hintBtn = document.getElementById('hintBtn');
-const checkBtn = document.getElementById('checkBtn');
-const clearBtn = document.getElementById('clearBtn');
-const nextBtn = document.getElementById('nextBtn');
-const numBtns = document.querySelectorAll('.num-btn');
-const opBtns = document.querySelectorAll('.op-btn-keypad');
-
-// Popups
-const overlay = document.getElementById('overlay');
-const welcomePopup = document.getElementById('welcomePopup');
-const rulesPopup = document.getElementById('rulesPopup');
-const hintPopup = document.getElementById('hintPopup');
-const completePopup = document.getElementById('completePopup');
-const hintText = document.getElementById('hintText');
-const stepIndicator = document.getElementById('stepIndicator');
-const prevHint = document.getElementById('prevHint');
-const nextHint = document.getElementById('nextHint');
-const finalScore = document.getElementById('finalScore');
-const starsDisplay = document.getElementById('starsDisplay');
-
-// ==========================================
-// 3. UTILITY FUNCTIONS
-// ==========================================
-function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function getRandomOperation() {
-    const ops = ['add', 'sub', 'mul'];
-    return ops[Math.floor(Math.random() * ops.length)];
-}
-
-function calculateResult(num1, num2, op) {
-    switch(op) {
-        case 'add': return num1 + num2;
-        case 'sub': return num1 - num2;
-        case 'mul': return num1 * num2;
-        default: return 0;
-    }
-}
-
-function getOperationSymbol(op) {
-    const symbols = { 'add': '➕', 'sub': '➖', 'mul': '✖️' };
-    return symbols[op] || '?';
-}
-
-function formatNumber(num) {
-    if (num >= 0) {
-        return `+${num}`;
-    } else {
-        return `${num}`;
-    }
-}
-
-// ==========================================
-// 4. PROGRESSIVE DIFFICULTY
-// ==========================================
-function updateDifficulty() {
-    // As score increases, range expands and includes negatives
-    if (currentScore <= 3) {
-        currentMin = 0;
-        currentMax = 10;
-    } else if (currentScore <= 6) {
-        currentMin = -5;
-        currentMax = 15;
-    } else {
-        currentMin = -15;
-        currentMax = 15;
-    }
-}
-
-// ==========================================
-// 5. PROBLEM GENERATION (2 OPERANDS ONLY)
-// ==========================================
-function generateProblem() {
-    updateDifficulty();
-    return generateTwoNumberProblem();
-}
-
-function generateTwoNumberProblem() {
-    const num1 = getRandomInt(currentMin, currentMax);
-    const num2 = getRandomInt(currentMin, currentMax);
-    const op = getRandomOperation();
-    const result = calculateResult(num1, num2, op);
+(function() {
+    "use strict";
     
-    const missingOptions = ['num1', 'num2', 'op', 'result'];
-    const missing = missingOptions[Math.floor(Math.random() * missingOptions.length)];
-    
-    return {
-        type: 'two',
-        num1, num2, op, result,
-        missing: missing,
-        numCount: 2
+    // ===== Configuration =====
+    const CONFIG = {
+        TOTAL_QUESTIONS: 15,
+        MAX_OPERANDS: 3
     };
-}
-
-// ==========================================
-// 6. DISPLAY FUNCTIONS
-// ==========================================
-function renderEquation(problem) {
-    equationArea.innerHTML = '';
-    renderTwoNumberEquation(problem);
-}
-
-function renderTwoNumberEquation(problem) {
-    const { num1, num2, op, result, missing } = problem;
     
-    // First number
-    if (missing === 'num1') {
-        equationArea.appendChild(createEmptyCard());
-    } else {
-        equationArea.appendChild(createNumberCard(num1));
-    }
-    
-    // Operator
-    if (missing === 'op') {
-        equationArea.appendChild(createEmptyOperator());
-    } else {
-        equationArea.appendChild(createOperator(getOperationSymbol(op)));
-    }
-    
-    // Second number
-    if (missing === 'num2') {
-        equationArea.appendChild(createEmptyCard());
-    } else {
-        equationArea.appendChild(createNumberCard(num2));
-    }
-    
-    // Equals
-    equationArea.appendChild(createOperator('=', 'equals'));
-    
-    // Result
-    if (missing === 'result') {
-        equationArea.appendChild(createEmptyCard('fish'));
-    } else {
-        equationArea.appendChild(createResultCard(result));
-    }
-}
-
-function createNumberCard(value) {
-    const div = document.createElement('div');
-    div.className = 'card';
-    div.innerHTML = `
-        <img src="assets/images/lilypad.png" alt="Lily Pad">
-        <span class="card-value">${formatNumber(value)}</span>
-    `;
-    return div;
-}
-
-function createEmptyCard(type = 'lilypad') {
-    const div = document.createElement('div');
-    div.className = 'card empty';
-    const imgSrc = type === 'fish' ? 'assets/images/fish.png' : 'assets/images/lilypad.png';
-    div.innerHTML = `
-        <img src="${imgSrc}" alt="Empty">
-        <span class="card-value">?</span>
-    `;
-    return div;
-}
-
-function createOperator(symbol, extraClass = '') {
-    const div = document.createElement('div');
-    div.className = `operator ${extraClass}`;
-    div.textContent = symbol;
-    return div;
-}
-
-function createResultCard(value) {
-    const div = document.createElement('div');
-    div.className = 'card result';
-    div.innerHTML = `
-        <img src="assets/images/fish.png" alt="Fish">
-        <span class="card-value">${formatNumber(value)}</span>
-    `;
-    return div;
-}
-
-function createEmptyOperator() {
-    const div = document.createElement('div');
-    div.className = 'operator empty-op';
-    div.textContent = '?';
-    div.style.background = 'rgba(158, 158, 158, 0.8)';
-    div.style.color = '#FFFFFF';
-    div.style.textShadow = '2px 2px 0 #666';
-    return div;
-}
-
-function updateScore() {
-    if (scoreDisplay) {
-        scoreDisplay.textContent = `${currentScore}/${totalQuestions}`;
-    }
-}
-
-function showFrogEmotion(emotion) {
-    if (!frog) return;
-    frog.classList.remove('happy', 'sad');
-    if (emotion === 'happy') {
-        frog.classList.add('happy');
-        showSpeechBubble('Great job! 🎉', 2000);
-    } else if (emotion === 'sad') {
-        frog.classList.add('sad');
-        showSpeechBubble('Try again! You can do it! 💪', 2000);
-    }
-}
-
-function showSpeechBubble(text, duration = 3000) {
-    const existing = document.querySelector('.speech-bubble');
-    if (existing) existing.remove();
-    
-    const bubble = document.createElement('div');
-    bubble.className = 'speech-bubble';
-    bubble.textContent = text;
-    
-    const pondContainer = document.querySelector('.pond-container');
-    if (pondContainer) {
-        pondContainer.appendChild(bubble);
-        setTimeout(() => bubble.remove(), duration);
-    }
-}
-
-// ==========================================
-// 7. HINT SYSTEM
-// ==========================================
-function generateHints(problem) {
-    const hints = [];
-    const { num1, num2, op, result, missing } = problem;
-    
-    if (missing === 'num1') {
-        hints.push(`We know: ? ${getOperationSymbol(op)} ${formatNumber(num2)} = ${formatNumber(result)}`);
-        hints.push(`Work backwards: ${formatNumber(result)} ${op === 'add' ? '➖' : op === 'sub' ? '➕' : '➗'} ${formatNumber(num2)}`);
-        hints.push(`Answer: ${formatNumber(num1)}`);
-    } else if (missing === 'num2') {
-        hints.push(`We know: ${formatNumber(num1)} ${getOperationSymbol(op)} ? = ${formatNumber(result)}`);
-        hints.push(`Think: What number ${op === 'add' ? 'added to' : op === 'sub' ? 'subtracted from' : 'multiplied by'} ${formatNumber(num1)} gives ${formatNumber(result)}?`);
-        hints.push(`Answer: ${formatNumber(num2)}`);
-    } else if (missing === 'op') {
-        hints.push(`We know: ${formatNumber(num1)} ? ${formatNumber(num2)} = ${formatNumber(result)}`);
-        hints.push(`Try each: + = ${formatNumber(num1+num2)}, - = ${formatNumber(num1-num2)}, × = ${formatNumber(num1*num2)}`);
-        hints.push(`The correct operation is: ${getOperationSymbol(op)}`);
-    } else {
-        hints.push(`Calculate: ${formatNumber(num1)} ${getOperationSymbol(op)} ${formatNumber(num2)}`);
-        hints.push(`${formatNumber(num1)} ${getOperationSymbol(op)} ${formatNumber(num2)} = ?`);
-        hints.push(`Answer: ${formatNumber(result)}`);
-    }
-    
-    return hints;
-}
-
-function showHintStep(step) {
-    if (currentHints.length === 0) return;
-    
-    if (hintText) hintText.textContent = currentHints[step];
-    if (stepIndicator) stepIndicator.textContent = `Step ${step + 1}/${currentHints.length}`;
-    
-    if (prevHint) prevHint.disabled = (step === 0);
-    if (nextHint) nextHint.disabled = (step === currentHints.length - 1);
-    
-    hintStep = step;
-}
-
-// ==========================================
-// 8. ANSWER VALIDATION
-// ==========================================
-function checkAnswer() {
-    if (!gameActive) return;
-    if (!currentProblem) return;
-    
-    let isCorrect = false;
-    const problem = currentProblem;
-    
-    if (problem.missing === 'op') {
-        const selectedOp = document.querySelector('.op-btn-keypad.active')?.dataset.op;
-        isCorrect = (selectedOp === problem.op);
-    } else {
-        let userValue = 0;
-        if (userInput !== '') {
-            userValue = parseInt(userInput) || 0;
+    // ===== Sound Manager =====
+    class SoundManager {
+        constructor() {
+            this.audioContext = null;
+            this.enabled = true;
+            this.initAudio();
         }
         
-        if (isNegative) {
-            userValue = -Math.abs(userValue);
-        } else {
-            userValue = Math.abs(userValue);
+        initAudio() {
+            try {
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            } catch(e) {
+                console.log('Web Audio not supported');
+                this.enabled = false;
+            }
         }
         
-        const correctValue = getCorrectValue(problem);
-        isCorrect = (userValue === correctValue);
-    }
-    
-    if (isCorrect) {
-        handleCorrect();
-    } else {
-        handleIncorrect();
-    }
-}
-
-function getCorrectValue(problem) {
-    switch(problem.missing) {
-        case 'num1': return problem.num1;
-        case 'num2': return problem.num2;
-        case 'result': return problem.result;
-        default: return 0;
-    }
-}
-
-function handleCorrect() {
-    playSound('correct');
-    showFrogEmotion('happy');
-    currentScore++;
-    updateScore();
-    gameActive = false;
-    if (nextBtn) nextBtn.disabled = false;
-    
-    if (currentQuestion >= totalQuestions) {
-        setTimeout(() => showGameComplete(), 1000);
-    }
-}
-
-function handleIncorrect() {
-    playSound('wrong');
-    showFrogEmotion('sad');
-    
-    setTimeout(() => {
-        if (confirm('That\'s not correct. Would you like a hint?')) {
-            openHintPopup();
+        async playSound(type) {
+            if (!this.enabled || !this.audioContext) return;
+            
+            const ctx = this.audioContext;
+            
+            if (ctx.state === 'suspended') {
+                await ctx.resume();
+            }
+            
+            const now = ctx.currentTime;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            
+            switch(type) {
+                case 'click':
+                    osc.frequency.value = 800;
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                    osc.start();
+                    osc.stop(now + 0.08);
+                    break;
+                    
+                case 'correct':
+                    osc.frequency.value = 523.25;
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                    osc.start();
+                    
+                    const osc2 = ctx.createOscillator();
+                    const gain2 = ctx.createGain();
+                    osc2.connect(gain2);
+                    gain2.connect(ctx.destination);
+                    osc2.frequency.value = 659.25;
+                    gain2.gain.setValueAtTime(0.12, now + 0.12);
+                    gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.37);
+                    osc2.start(now + 0.12);
+                    osc2.stop(now + 0.37);
+                    
+                    osc.stop(now + 0.25);
+                    break;
+                    
+                case 'wrong':
+                    osc.frequency.value = 300;
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                    osc.start();
+                    osc.stop(now + 0.35);
+                    break;
+                    
+                case 'complete':
+                    [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+                        const o = ctx.createOscillator();
+                        const g = ctx.createGain();
+                        o.connect(g);
+                        g.connect(ctx.destination);
+                        o.frequency.value = freq;
+                        g.gain.setValueAtTime(0.08, now + i * 0.1);
+                        g.gain.exponentialRampToValueAtTime(0.01, now + 0.4 + i * 0.1);
+                        o.start(now + i * 0.1);
+                        o.stop(now + 0.4 + i * 0.1);
+                    });
+                    break;
+            }
         }
-    }, 500);
-}
-
-// ==========================================
-// 9. GAME FLOW
-// ==========================================
-function loadNextQuestion() {
-    if (currentQuestion >= totalQuestions) {
-        showGameComplete();
-        return;
-    }
-    
-    currentQuestion++;
-    currentProblem = generateProblem();
-    renderEquation(currentProblem);
-    currentHints = generateHints(currentProblem);
-    
-    resetInput();
-    gameActive = true;
-    if (nextBtn) nextBtn.disabled = true;
-    
-    // Show difficulty level in bubble
-    let difficultyText = '';
-    if (currentScore <= 3) difficultyText = '🌱 Easy Mode';
-    else if (currentScore <= 6) difficultyText = '🌿 Medium Mode';
-    else difficultyText = '🌸 Hard Mode';
-    
-    showSpeechBubble(`Q${currentQuestion}/${totalQuestions} - ${difficultyText}`, 2000);
-}
-
-function resetInput() {
-    userInput = '';
-    isNegative = false;
-    hintStep = 0;
-    document.querySelectorAll('.op-btn-keypad').forEach(btn => btn.classList.remove('active'));
-    updateEmptyCardDisplay();
-    
-    // Reset empty operator display if exists
-    const emptyOp = document.querySelector('.operator.empty-op');
-    if (emptyOp) {
-        emptyOp.textContent = '?';
-        emptyOp.style.background = 'rgba(158, 158, 158, 0.8)';
-    }
-}
-
-function showGameComplete() {
-    if (finalScore) finalScore.textContent = currentScore;
-    
-    let stars = '';
-    if (currentScore >= 9) stars = '🌟🌟🌟🌟🌟';
-    else if (currentScore >= 7) stars = '🌟🌟🌟🌟';
-    else if (currentScore >= 5) stars = '🌟🌟🌟';
-    else if (currentScore >= 3) stars = '🌟🌟';
-    else stars = '🌟';
-    
-    if (starsDisplay) starsDisplay.textContent = stars;
-    
-    playSound('complete');
-    showPopup('completePopup');
-}
-
-function resetGame() {
-    currentScore = 0;
-    currentQuestion = 1;
-    currentMin = 0;
-    currentMax = 10;
-    updateScore();
-    currentProblem = generateProblem();
-    renderEquation(currentProblem);
-    currentHints = generateHints(currentProblem);
-    resetInput();
-    gameActive = true;
-    if (nextBtn) nextBtn.disabled = true;
-    hideAllPopups();
-}
-
-// ==========================================
-// 10. POPUP CONTROLS
-// ==========================================
-function showPopup(popupId) {
-    const popup = document.getElementById(popupId);
-    if (popup) popup.hidden = false;
-    if (overlay) overlay.hidden = false;
-}
-
-function hidePopup(popupId) {
-    const popup = document.getElementById(popupId);
-    if (popup) popup.hidden = true;
-    if (overlay) overlay.hidden = true;
-}
-
-function hideAllPopups() {
-    document.querySelectorAll('.popup').forEach(p => p.hidden = true);
-    if (overlay) overlay.hidden = true;
-}
-
-function openHintPopup() {
-    if (!currentProblem) return;
-    
-    playSound('hint');
-    currentHints = generateHints(currentProblem);
-    hintStep = 0;
-    showHintStep(0);
-    showPopup('hintPopup');
-}
-
-// ==========================================
-// 11. SOUND SYSTEM (VOICE READY)
-// ==========================================
-const sounds = {};
-
-function initSounds() {
-    // Create audio elements
-    sounds.correct = new Audio();
-    sounds.wrong = new Audio();
-    sounds.hint = new Audio();
-    sounds.complete = new Audio();
-    
-    // Try to load sound files if they exist
-    try {
-        sounds.correct.src = 'assets/sounds/correct.mp3';
-        sounds.wrong.src = 'assets/sounds/wrong.mp3';
-        sounds.hint.src = 'assets/sounds/hint.mp3';
-        sounds.complete.src = 'assets/sounds/complete.mp3';
-    } catch(e) {
-        console.log('Sound files not found, using silent mode');
-    }
-}
-
-function playSound(soundName) {
-    if (!soundEnabled) return;
-    
-    try {
-        const sound = sounds[soundName];
-        if (sound) {
-            sound.currentTime = 0;
-            sound.play().catch(e => console.log('Sound play prevented'));
+        
+        toggle() {
+            this.enabled = !this.enabled;
+            return this.enabled;
         }
-    } catch(e) {
-        console.log('Sound error:', soundName);
     }
-}
-
-// Voice function - can be called to speak text
-function speakText(text) {
-    if (!soundEnabled) return;
     
-    if ('speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'hi-IN'; // Hindi voice
-        utterance.rate = 0.9;
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(utterance);
-    }
-}
-
-// ==========================================
-// 12. EVENT LISTENERS
-// ==========================================
-function setupEventListeners() {
-    // Number buttons
-    numBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            if (!gameActive) return;
-            if (currentProblem?.missing === 'op') return;
+    // ===== Game Class =====
+    class MathPondGame {
+        constructor() {
+            this.sounds = new SoundManager();
+            this.currentQuestion = null;
+            this.userAnswers = {};
+            this.questionNumber = 1;
+            this.score = 0;
+            this.gameActive = true;
+            this.currentSlot = null;
+            this.keypadValue = '';
             
-            userInput += btn.dataset.num;
-            updateEmptyCardDisplay();
-        });
-    });
-    
-    // Operation buttons
-        // Operation buttons
-        // Operation buttons
-        // Operation buttons
-    opBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            if (!gameActive) return;
-            
-            const op = btn.dataset.op;
-            
-            if (currentProblem && currentProblem.missing === 'op') {
-                // CASE 1: Operation is missing
-                opBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                updateEmptyOperatorDisplay(op);
-            } else {
-                // CASE 2: Number is missing - SIGN TOGGLE
-                opBtns.forEach(b => b.classList.remove('active'));
+            this.initElements();
+            this.initEventListeners();
+            this.startNewGame();
+        }
+        
+        initElements() {
+            this.elements = {
+                // Inputs
+                frogInput: document.getElementById('frogInput'),
+                fishInput: document.getElementById('fishInput'),
+                lilypadsContainer: document.getElementById('lilypadsContainer'),
                 
-                // Set negative flag based on operation
-                if (op === 'sub') {
-                    isNegative = true;
-                } else {
-                    isNegative = false;
+                // Progress
+                progressDots: document.getElementById('progressDots'),
+                
+                // Buttons
+                doneBtn: document.getElementById('doneBtn'),
+                rulesBtn: document.getElementById('rulesBtn'),
+                voiceToggle: document.getElementById('voiceToggle'),
+                helpBtn: document.getElementById('helpBtn'),
+                
+                // Modals
+                keypadModal: document.getElementById('keypadModal'),
+                rulesModal: document.getElementById('rulesModal'),
+                helpModal: document.getElementById('helpModal'),
+                completionModal: document.getElementById('completionModal'),
+                
+                // Keypad elements
+                keypadDisplay: document.getElementById('keypadDisplay'),
+                
+                // Message
+                messageToast: document.getElementById('messageToast'),
+                
+                // Final score
+                finalScore: document.getElementById('finalScore'),
+                performanceMessage: document.getElementById('performanceMessage')
+            };
+        }
+        
+        initEventListeners() {
+            // Input clicks - only for empty/editable slots
+            this.elements.frogInput.addEventListener('click', (e) => {
+                if (!e.target.readOnly) {
+                    this.openKeypad('frog');
                 }
-                
-                // Update display immediately
-                updateEmptyCardDisplay();
-            }
-        });
-    });
-
-    function updateEmptyOperatorDisplay(op) {
-    const emptyOp = document.querySelector('.operator.empty-op');
-    if (emptyOp) {
-        const symbol = getOperationSymbol(op);  // Returns ➕, ➖, or ✖️
-        emptyOp.textContent = symbol;
-        emptyOp.style.background = '#FF8F00';
-        emptyOp.style.color = '#FFFFFF';
-        emptyOp.style.textShadow = '2px 2px 0 #E65100';
-    }
-}
-    
-    // Check button
-    if (checkBtn) checkBtn.addEventListener('click', checkAnswer);
-    
-    // Clear button
-        // Clear button
-    if (clearBtn) {
-        clearBtn.addEventListener('click', () => {
-            userInput = '';
-            isNegative = false;
-            updateEmptyCardDisplay();
-            document.querySelectorAll('.op-btn-keypad').forEach(btn => btn.classList.remove('active'));
+            });
             
-            // Reset empty operator if exists
-            const emptyOp = document.querySelector('.operator.empty-op');
-            if (emptyOp) {
-                emptyOp.textContent = '?';
-                emptyOp.style.background = 'rgba(158, 158, 158, 0.8)';
-            }
-        });
-    }
-    
-    // Hint button
-    if (hintBtn) hintBtn.addEventListener('click', openHintPopup);
-    
-    // Next button
-    if (nextBtn) nextBtn.addEventListener('click', loadNextQuestion);
-    
-    // Sound toggle
-    if (soundToggle) {
-        soundToggle.addEventListener('click', () => {
-            soundEnabled = !soundEnabled;
-            soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
-        });
-    }
-    
-    // Rules button
-    if (rulesBtn) {
-        rulesBtn.addEventListener('click', () => showPopup('rulesPopup'));
-    }
-    
-    // Popup close buttons
-    document.querySelectorAll('.close-popup').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const popup = e.target.closest('.popup');
-            if (popup) hidePopup(popup.id);
-        });
-    });
-    
-    // Overlay click
-    if (overlay) overlay.addEventListener('click', hideAllPopups);
-    
-    // Hint navigation
-    if (prevHint) {
-        prevHint.addEventListener('click', () => {
-            if (hintStep > 0) showHintStep(hintStep - 1);
-        });
-    }
-    
-    if (nextHint) {
-        nextHint.addEventListener('click', () => {
-            if (hintStep < currentHints.length - 1) showHintStep(hintStep + 1);
-        });
-    }
-    
-    // Got it button
-    const gotItBtn = document.getElementById('gotItBtn');
-    if (gotItBtn) {
-        gotItBtn.addEventListener('click', () => hidePopup('rulesPopup'));
-    }
-    
-    // Start game button
-    const startGameBtn = document.getElementById('startGameBtn');
-    if (startGameBtn) {
-        startGameBtn.addEventListener('click', () => {
-            hidePopup('welcomePopup');
-            resetGame();
-        });
-    }
-    
-    // Play again button
-    const playAgainBtn = document.getElementById('playAgainBtn');
-    if (playAgainBtn) {
-        playAgainBtn.addEventListener('click', () => {
-            hidePopup('completePopup');
-            resetGame();
-        });
-    }
-    
-    // Home button
-    const homeBtn = document.getElementById('homeBtn');
-    if (homeBtn) {
-        homeBtn.addEventListener('click', () => {
-            hidePopup('completePopup');
-            showPopup('welcomePopup');
-        });
-    }
-}
-
-function updateEmptyCardDisplay() {
-    const emptyCard = document.querySelector('.card.empty .card-value');
-    if (emptyCard) {
-        let displayValue;
+            this.elements.fishInput.addEventListener('click', (e) => {
+                if (!e.target.readOnly) {
+                    this.openKeypad('fish');
+                }
+            });
+            
+            // Done button
+            this.elements.doneBtn.addEventListener('click', () => this.checkAnswer());
+            
+            // Header buttons
+            this.elements.rulesBtn.addEventListener('click', () => this.showModal('rules'));
+            this.elements.helpBtn.addEventListener('click', () => this.showModal('help'));
+            this.elements.voiceToggle.addEventListener('click', () => this.toggleVoice());
+            
+            // Keypad
+            document.querySelectorAll('[data-key]').forEach(btn => {
+                btn.addEventListener('click', (e) => this.handleKeypadInput(e.target.dataset.key));
+            });
+            
+            document.getElementById('keypadClear').addEventListener('click', () => this.clearKeypad());
+            document.getElementById('keypadSubmit').addEventListener('click', () => this.submitKeypadValue());
+            document.getElementById('keypadCancel').addEventListener('click', () => this.closeKeypad());
+            document.getElementById('closeKeypad').addEventListener('click', () => this.closeKeypad());
+            
+            // Modal close buttons
+            document.getElementById('closeRules').addEventListener('click', () => this.hideModal('rules'));
+            document.getElementById('closeHelp').addEventListener('click', () => this.hideModal('help'));
+            document.getElementById('gotItBtn').addEventListener('click', () => this.hideModal('rules'));
+            document.getElementById('gotHelpBtn').addEventListener('click', () => this.hideModal('help'));
+            
+            // Play again
+            document.getElementById('playAgainBtn').addEventListener('click', () => {
+                this.hideModal('completion');
+                this.startNewGame();
+            });
+            
+            // Modal overlay clicks
+            this.elements.keypadModal.addEventListener('click', (e) => {
+                if (e.target === this.elements.keypadModal) this.closeKeypad();
+            });
+            
+            this.elements.rulesModal.addEventListener('click', (e) => {
+                if (e.target === this.elements.rulesModal) this.hideModal('rules');
+            });
+            
+            this.elements.helpModal.addEventListener('click', (e) => {
+                if (e.target === this.elements.helpModal) this.hideModal('help');
+            });
+        }
         
-        // If no input yet
-        if (!userInput || userInput === '') {
-            // Show only sign symbol
-            if (isNegative) {
-                displayValue = '➖';  // Show minus symbol
-            } else {
-                displayValue = '?';
+        startNewGame() {
+            this.questionNumber = 1;
+            this.score = 0;
+            this.gameActive = true;
+            this.userAnswers = {};
+            this.generateNewQuestion();
+            this.updateProgressDots();
+            this.showMessage('🐸 Game started! Fill the empty slots!', 'success');
+        }
+        
+        getCurrentDifficulty() {
+            if (this.questionNumber <= 3) return 1;
+            if (this.questionNumber <= 7) return 2;
+            if (this.questionNumber <= 11) return 3;
+            return 4 + Math.floor(Math.random() * 2);
+        }
+        
+        generateNewQuestion() {
+            const difficulty = this.getCurrentDifficulty();
+            const operandCount = difficulty <= 3 ? 2 : 3;
+            
+            const operands = [];
+            const range = this.getRangeForDifficulty(difficulty);
+            
+            for (let i = 0; i < operandCount; i++) {
+                let num = this.randomInt(range.min, range.max);
+                if (difficulty > 3 && num === 0) {
+                    num = this.randomInt(1, range.max);
+                }
+                operands.push(num);
             }
-        } else {
-            // Has input - show sign with number
-            if (isNegative) {
-                displayValue = '➖' + userInput;  // Show minus symbol + number
-            } else {
-                displayValue = '➕' + userInput;  // Show plus symbol + number
+            
+            const add = operands.reduce((a, b) => a + b, 0);
+            const mul = operands.reduce((a, b) => a * b, 1);
+            
+            const totalSlots = operandCount + 2;
+            const blankCount = difficulty >= 4 ? 3 : 2;
+            const blanks = this.generateRandomBlanks(totalSlots, blankCount);
+            
+            this.currentQuestion = {
+                operands,
+                add,
+                mul,
+                blanks,
+                operandCount
+            };
+            
+            this.userAnswers = {};
+            this.autoFillGivenValues();
+            this.renderLilyPads();
+            this.renderFrogFish();
+        }
+        
+        getRangeForDifficulty(difficulty) {
+            const ranges = {
+                1: { min: -5, max: 5 },
+                2: { min: -8, max: 8 },
+                3: { min: -10, max: 10 },
+                4: { min: -12, max: 12 },
+                5: { min: -15, max: 15 }
+            };
+            return ranges[difficulty] || ranges[3];
+        }
+        
+        randomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        
+        generateRandomBlanks(totalSlots, blankCount) {
+            const blanks = new Array(totalSlots).fill(false);
+            const positions = [];
+            
+            while (positions.length < blankCount) {
+                const pos = Math.floor(Math.random() * totalSlots);
+                if (!positions.includes(pos)) {
+                    positions.push(pos);
+                }
+            }
+            
+            positions.forEach(p => blanks[p] = true);
+            return blanks;
+        }
+        
+        autoFillGivenValues() {
+            const q = this.currentQuestion;
+            
+            // Operands
+            for (let i = 0; i < q.operandCount; i++) {
+                if (!q.blanks[i]) {
+                    this.userAnswers[`operand_${i}`] = q.operands[i];
+                }
+            }
+            
+            // Add result
+            if (!q.blanks[q.operandCount]) {
+                this.userAnswers['add'] = q.add;
+            }
+            
+            // Mul result
+            if (!q.blanks[q.operandCount + 1]) {
+                this.userAnswers['mul'] = q.mul;
             }
         }
         
-        emptyCard.textContent = displayValue;
+        renderLilyPads() {
+            const q = this.currentQuestion;
+            let html = '';
+            
+            for (let i = 0; i < q.operandCount; i++) {
+                const isBlank = q.blanks[i];
+                const value = this.userAnswers[`operand_${i}`];
+                const displayValue = value !== undefined ? value : (isBlank ? '' : q.operands[i]);
+                const isReadonly = !isBlank; // Pre-filled boxes are readonly
+                
+                html += `
+                    <div class="lilypad-card">
+                        <img src="assets/images/lilypad.png" alt="Lily Pad" class="card-image">
+                        <div class="input-wrapper">
+                            <input type="text" 
+                                   class="slot-input ${isBlank && value === undefined ? 'empty' : 'filled'}" 
+                                   data-type="operand" 
+                                   data-index="${i}"
+                                   value="${displayValue}"
+                                   ${isReadonly ? 'readonly' : ''}
+                                   placeholder="${isBlank ? '___' : ''}">
+                        </div>
+                    </div>
+                `;
+            }
+            
+            this.elements.lilypadsContainer.innerHTML = html;
+            
+            // Attach click handlers ONLY to editable inputs (not readonly)
+            document.querySelectorAll('[data-type="operand"]').forEach(input => {
+                input.addEventListener('click', (e) => {
+                    if (!e.target.readOnly) {
+                        const index = e.target.dataset.index;
+                        this.openKeypad('operand', index);
+                    }
+                });
+            });
+        }
+        
+        renderFrogFish() {
+            const q = this.currentQuestion;
+            
+            // Frog (Add)
+            const addIndex = q.operandCount;
+            const isAddBlank = q.blanks[addIndex];
+            const addValue = this.userAnswers['add'];
+            const addDisplayValue = addValue !== undefined ? addValue : (isAddBlank ? '' : q.add);
+            const addReadonly = !isAddBlank;
+            
+            this.elements.frogInput.value = addDisplayValue;
+            this.elements.frogInput.className = `slot-input ${isAddBlank && addValue === undefined ? 'empty' : 'filled'}`;
+            this.elements.frogInput.placeholder = isAddBlank ? '___' : '';
+            this.elements.frogInput.readOnly = addReadonly;
+            
+            // Fish (Mul)
+            const mulIndex = q.operandCount + 1;
+            const isMulBlank = q.blanks[mulIndex];
+            const mulValue = this.userAnswers['mul'];
+            const mulDisplayValue = mulValue !== undefined ? mulValue : (isMulBlank ? '' : q.mul);
+            const mulReadonly = !isMulBlank;
+            
+            this.elements.fishInput.value = mulDisplayValue;
+            this.elements.fishInput.className = `slot-input ${isMulBlank && mulValue === undefined ? 'empty' : 'filled'}`;
+            this.elements.fishInput.placeholder = isMulBlank ? '___' : '';
+            this.elements.fishInput.readOnly = mulReadonly;
+        }
+        
+        openKeypad(type, index = null) {
+            if (!this.gameActive) return;
+            
+            this.currentSlot = { type, index };
+            this.keypadValue = '';
+            this.updateKeypadDisplay();
+            this.elements.keypadModal.classList.add('active');
+            this.sounds.playSound('click');
+        }
+        
+        closeKeypad() {
+            this.elements.keypadModal.classList.remove('active');
+            this.currentSlot = null;
+            this.keypadValue = '';
+        }
+        
+        handleKeypadInput(key) {
+            this.sounds.playSound('click');
+            
+            if (key === '-') {
+                if (this.keypadValue === '' || this.keypadValue === '-') {
+                    this.keypadValue = '-';
+                } else if (!this.keypadValue.includes('-')) {
+                    this.keypadValue = '-' + this.keypadValue;
+                }
+            } else {
+                if (this.keypadValue === '0') {
+                    this.keypadValue = key;
+                } else {
+                    this.keypadValue += key;
+                }
+            }
+            
+            if (this.keypadValue.replace('-', '').length > 3) {
+                this.keypadValue = this.keypadValue.slice(0, this.keypadValue.startsWith('-') ? 4 : 3);
+            }
+            
+            this.updateKeypadDisplay();
+        }
+        
+        clearKeypad() {
+            this.sounds.playSound('click');
+            this.keypadValue = '';
+            this.updateKeypadDisplay();
+        }
+        
+        updateKeypadDisplay() {
+            this.elements.keypadDisplay.textContent = this.keypadValue || '0';
+        }
+        
+        submitKeypadValue() {
+            if (!this.currentSlot || this.keypadValue === '' || this.keypadValue === '-') {
+                return;
+            }
+            
+            this.sounds.playSound('click');
+            
+            const value = parseInt(this.keypadValue);
+            const { type, index } = this.currentSlot;
+            
+            if (type === 'operand') {
+                this.userAnswers[`operand_${index}`] = value;
+                this.renderLilyPads();
+            } else if (type === 'frog') {
+                this.userAnswers['add'] = value;
+                this.renderFrogFish();
+            } else if (type === 'fish') {
+                this.userAnswers['mul'] = value;
+                this.renderFrogFish();
+            }
+            
+            this.closeKeypad();
+        }
+        
+        checkAnswer() {
+            if (!this.gameActive || !this.currentQuestion) return;
+            
+            const q = this.currentQuestion;
+            let allCorrect = true;
+            let allFilled = true;
+            
+            // Check operands
+            for (let i = 0; i < q.operandCount; i++) {
+                if (q.blanks[i]) {
+                    const userVal = this.userAnswers[`operand_${i}`];
+                    if (userVal === undefined) {
+                        allFilled = false;
+                    } else if (userVal !== q.operands[i]) {
+                        allCorrect = false;
+                    }
+                }
+            }
+            
+            // Check add
+            if (q.blanks[q.operandCount]) {
+                const userAdd = this.userAnswers['add'];
+                if (userAdd === undefined) {
+                    allFilled = false;
+                } else if (userAdd !== q.add) {
+                    allCorrect = false;
+                }
+            }
+            
+            // Check mul
+            if (q.blanks[q.operandCount + 1]) {
+                const userMul = this.userAnswers['mul'];
+                if (userMul === undefined) {
+                    allFilled = false;
+                } else if (userMul !== q.mul) {
+                    allCorrect = false;
+                }
+            }
+            
+            if (!allFilled) {
+                this.showMessage('❌ Please fill all empty slots!', 'error');
+                this.sounds.playSound('wrong');
+                return;
+            }
+            
+            if (allCorrect) {
+                this.handleCorrectAnswer();
+            } else {
+                this.handleWrongAnswer();
+            }
+        }
+        
+        handleCorrectAnswer() {
+            this.score++;
+            this.gameActive = false;
+            
+            this.elements.doneBtn.disabled = true;
+            
+            this.showMessage('✅ Correct! Great job!', 'success');
+            this.sounds.playSound('correct');
+            
+            // Highlight correct
+            this.highlightAllInputs('correct');
+            
+            // Check if game complete
+            if (this.questionNumber === CONFIG.TOTAL_QUESTIONS) {
+                setTimeout(() => this.showCompletionScreen(), 1000);
+            } else {
+                setTimeout(() => {
+                    this.questionNumber++;
+                    this.gameActive = true;
+                    this.userAnswers = {};
+                    this.generateNewQuestion();
+                    this.updateProgressDots();
+                    this.elements.doneBtn.disabled = false;
+                    this.showMessage('🐸 Next question! Fill the empty slots.', 'success');
+                }, 1200);
+            }
+        }
+        
+        handleWrongAnswer() {
+            this.highlightAllInputs('wrong');
+            this.showMessage('❌ Not quite right. Try again!', 'error');
+            this.sounds.playSound('wrong');
+            
+            setTimeout(() => {
+                this.removeHighlights();
+            }, 400);
+        }
+        
+        highlightAllInputs(type) {
+            const inputs = document.querySelectorAll('.slot-input');
+            inputs.forEach(input => {
+                input.classList.add(type === 'correct' ? 'correct-highlight' : 'wrong-highlight');
+            });
+            
+            setTimeout(() => {
+                inputs.forEach(input => {
+                    input.classList.remove('correct-highlight', 'wrong-highlight');
+                });
+            }, type === 'correct' ? 800 : 400);
+        }
+        
+        removeHighlights() {
+            document.querySelectorAll('.slot-input').forEach(input => {
+                input.classList.remove('correct-highlight', 'wrong-highlight');
+            });
+        }
+        
+        updateProgressDots() {
+            let html = '';
+            for (let i = 1; i <= CONFIG.TOTAL_QUESTIONS; i++) {
+                let status = 'pending';
+                if (i < this.questionNumber) status = 'completed';
+                else if (i === this.questionNumber) status = 'current';
+                
+                html += `<span class="progress-dot ${status}"></span>`;
+            }
+            this.elements.progressDots.innerHTML = html;
+        }
+        
+        showMessage(text, type) {
+            const toast = this.elements.messageToast;
+            toast.textContent = text;
+            toast.className = `message-toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+        
+        showModal(modalName) {
+            if (modalName === 'rules') {
+                this.elements.rulesModal.classList.add('active');
+            } else if (modalName === 'help') {
+                this.elements.helpModal.classList.add('active');
+            } else if (modalName === 'completion') {
+                this.elements.completionModal.classList.add('active');
+            }
+            this.sounds.playSound('click');
+        }
+        
+        hideModal(modalName) {
+            if (modalName === 'rules') {
+                this.elements.rulesModal.classList.remove('active');
+            } else if (modalName === 'help') {
+                this.elements.helpModal.classList.remove('active');
+            } else if (modalName === 'completion') {
+                this.elements.completionModal.classList.remove('active');
+            }
+            this.sounds.playSound('click');
+        }
+        
+        toggleVoice() {
+            const enabled = this.sounds.toggle();
+            this.elements.voiceToggle.textContent = enabled ? '🔊' : '🔇';
+            this.elements.voiceToggle.title = enabled ? 'Sound ON' : 'Sound OFF';
+            this.showMessage(enabled ? '🔊 Sound ON' : '🔇 Sound OFF', 'success');
+        }
+        
+        showCompletionScreen() {
+            this.gameActive = false;
+            this.elements.finalScore.textContent = this.score;
+            
+            let message = '';
+            if (this.score === 15) message = '🏆 Perfect Score! Math Champion! 🏆';
+            else if (this.score >= 12) message = '🌟 Excellent! Great math skills! 🌟';
+            else if (this.score >= 9) message = '👍 Good job! Keep practicing! 👍';
+            else message = '💪 Nice try! Practice makes perfect! 💪';
+            
+            this.elements.performanceMessage.textContent = message;
+            this.showModal('completion');
+            this.sounds.playSound('complete');
+        }
     }
-}
-
-// ==========================================
-// 13. INITIALIZATION
-// ==========================================
-function initGame() {
-    initSounds();
-    setupEventListeners();
     
-    currentProblem = generateProblem();
-    renderEquation(currentProblem);
-    currentHints = generateHints(currentProblem);
-    updateScore();
+    // Initialize game
+    document.addEventListener('DOMContentLoaded', () => {
+        new MathPondGame();
+    });
     
-    const hasVisited = localStorage.getItem('frogMathPondVisited');
-    if (!hasVisited) {
-        showPopup('welcomePopup');
-        localStorage.setItem('frogMathPondVisited', 'true');
-    }
-    
-    showSpeechBubble('Welcome! Let\'s solve some math! 🐸', 3000);
-}
-
-window.addEventListener('DOMContentLoaded', initGame);
+})();
