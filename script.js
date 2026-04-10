@@ -1,13 +1,67 @@
-// ===== Math Pond Game - Complete JavaScript =====
+// ===== Math Pond Game - Complete JavaScript with 10 Fixed Patterns =====
 
 (function() {
     "use strict";
     
     // ===== Configuration =====
     const CONFIG = {
-        TOTAL_QUESTIONS: 15,
+        TOTAL_QUESTIONS: 10,
         MAX_OPERANDS: 3
     };
+    
+    // ===== 10 Fixed Question Patterns =====
+    const QUESTION_PATTERNS = [
+        // Pattern 1: pos × pos = blank
+        {
+            operands: [2, 3],
+            blanks: [false, false, false, true]
+        },
+        // Pattern 2: pos + pos = blank
+        {
+            operands: [4, 5],
+            blanks: [false, false, true, false]
+        },
+        // Pattern 3: pos , pos = blank , blank
+        {
+            operands: [3, 6],
+            blanks: [false, false, true, true]
+        },
+        // Pattern 4: blank , blank = mul , add
+        {
+            operands: [3, 5],
+            blanks: [true, true, false, false]
+        },
+        // Pattern 5: pos , neg = blank , blank
+        {
+            operands: [4, -2],
+            blanks: [false, false, true, true]
+        },
+        // Pattern 6: blank , blank = neg(mul) , pos(add)
+        {
+            operands: [4, -3],
+            blanks: [true, true, false, false]
+        },
+        // Pattern 7: pos , neg , neg = blank(pos mul) , blank(neg add)
+        {
+            operands: [2, -3, -1],
+            blanks: [false, false, false, true, true]
+        },
+        // Pattern 8: blank , blank , blank = neg(mul) , pos(add)
+        {
+            operands: [2, -3, 4],
+            blanks: [true, true, true, false, false]
+        },
+        // Pattern 9: pos , pos , neg = blank , blank
+        {
+            operands: [3, 2, -1],
+            blanks: [false, false, false, true, true]
+        },
+        // Pattern 10: blank , blank = pos(add) , neg(mul)
+        {
+            operands: [5, -2],
+            blanks: [true, true, false, false]
+        }
+    ];
     
     // ===== Sound Manager =====
     class SoundManager {
@@ -214,45 +268,29 @@
             this.score = 0;
             this.gameActive = true;
             this.userAnswers = {};
+            this.elements.doneBtn.disabled = false;
             this.generateNewQuestion();
             this.updateProgressDots();
             this.showMessage('🐸 Game started! Fill the empty slots!', 'success');
         }
         
-        getCurrentDifficulty() {
-            if (this.questionNumber <= 3) return 1;
-            if (this.questionNumber <= 7) return 2;
-            if (this.questionNumber <= 11) return 3;
-            return 4 + Math.floor(Math.random() * 2);
-        }
-        
         generateNewQuestion() {
-            const difficulty = this.getCurrentDifficulty();
-            const operandCount = difficulty <= 3 ? 2 : 3;
+            // Get pattern based on question number (cycle through 10 patterns)
+            const patternIndex = (this.questionNumber - 1) % QUESTION_PATTERNS.length;
+            const pattern = QUESTION_PATTERNS[patternIndex];
             
-            const operands = [];
-            const range = this.getRangeForDifficulty(difficulty);
+            const operands = [...pattern.operands];
+            const operandCount = operands.length;
             
-            for (let i = 0; i < operandCount; i++) {
-                let num = this.randomInt(range.min, range.max);
-                if (difficulty > 3 && num === 0) {
-                    num = this.randomInt(1, range.max);
-                }
-                operands.push(num);
-            }
-            
+            // Calculate results
             const add = operands.reduce((a, b) => a + b, 0);
             const mul = operands.reduce((a, b) => a * b, 1);
-            
-            const totalSlots = operandCount + 2;
-            const blankCount = difficulty >= 4 ? 3 : 2;
-            const blanks = this.generateRandomBlanks(totalSlots, blankCount);
             
             this.currentQuestion = {
                 operands,
                 add,
                 mul,
-                blanks,
+                blanks: [...pattern.blanks],
                 operandCount
             };
             
@@ -260,36 +298,6 @@
             this.autoFillGivenValues();
             this.renderLilyPads();
             this.renderFrogFish();
-        }
-        
-        getRangeForDifficulty(difficulty) {
-            const ranges = {
-                1: { min: -5, max: 5 },
-                2: { min: -8, max: 8 },
-                3: { min: -10, max: 10 },
-                4: { min: -12, max: 12 },
-                5: { min: -15, max: 15 }
-            };
-            return ranges[difficulty] || ranges[3];
-        }
-        
-        randomInt(min, max) {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        }
-        
-        generateRandomBlanks(totalSlots, blankCount) {
-            const blanks = new Array(totalSlots).fill(false);
-            const positions = [];
-            
-            while (positions.length < blankCount) {
-                const pos = Math.floor(Math.random() * totalSlots);
-                if (!positions.includes(pos)) {
-                    positions.push(pos);
-                }
-            }
-            
-            positions.forEach(p => blanks[p] = true);
-            return blanks;
         }
         
         autoFillGivenValues() {
@@ -321,7 +329,7 @@
                 const isBlank = q.blanks[i];
                 const value = this.userAnswers[`operand_${i}`];
                 const displayValue = value !== undefined ? value : (isBlank ? '' : q.operands[i]);
-                const isReadonly = !isBlank; // Pre-filled boxes are readonly
+                const isReadonly = !isBlank;
                 
                 html += `
                     <div class="lilypad-card">
@@ -341,7 +349,7 @@
             
             this.elements.lilypadsContainer.innerHTML = html;
             
-            // Attach click handlers ONLY to editable inputs (not readonly)
+            // Attach click handlers ONLY to editable inputs
             document.querySelectorAll('[data-type="operand"]').forEach(input => {
                 input.addEventListener('click', (e) => {
                     if (!e.target.readOnly) {
@@ -515,10 +523,8 @@
             this.showMessage('✅ Correct! Great job!', 'success');
             this.sounds.playSound('correct');
             
-            // Highlight correct
             this.highlightAllInputs('correct');
             
-            // Check if game complete
             if (this.questionNumber === CONFIG.TOTAL_QUESTIONS) {
                 setTimeout(() => this.showCompletionScreen(), 1000);
             } else {
@@ -619,9 +625,9 @@
             this.elements.finalScore.textContent = this.score;
             
             let message = '';
-            if (this.score === 15) message = '🏆 Perfect Score! Math Champion! 🏆';
-            else if (this.score >= 12) message = '🌟 Excellent! Great math skills! 🌟';
-            else if (this.score >= 9) message = '👍 Good job! Keep practicing! 👍';
+            if (this.score === 10) message = '🏆 Perfect Score! Math Champion! 🏆';
+            else if (this.score >= 8) message = '🌟 Excellent! Great math skills! 🌟';
+            else if (this.score >= 6) message = '👍 Good job! Keep practicing! 👍';
             else message = '💪 Nice try! Practice makes perfect! 💪';
             
             this.elements.performanceMessage.textContent = message;
