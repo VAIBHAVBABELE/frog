@@ -14,7 +14,6 @@
         <!-- Header -->
         <header class="game-header">
             <button class="icon-btn" id="rulesBtn" title="Rules">📜</button>
-            <h1 class="game-title">🐸 MATH POND</h1>
             <div class="header-right">
                 <button class="icon-btn" id="voiceToggle" title="Sound ON">🔊</button>
                 <button class="icon-btn" id="helpBtn" title="Help">ℹ️</button>
@@ -23,18 +22,18 @@
         
         <!-- Main Game Area -->
         <main class="game-main">
-            <!-- Frog Area (Addition) -->
-            <div class="frog-area">
-                <div class="card frog-card">
-                    <img src="assets/images/frog.png" alt="Frog" class="card-image">
+            <!-- crow Area (Addition) -->
+            <div class="crow-area">
+                <div class="card crow-card">
+                    <img src="assets/images/crow.png" alt="crow" class="card-image">
                     <div class="input-wrapper">
-                        <input type="text" class="slot-input" id="frogInput" data-type="add" readonly>
+                        <input type="text" class="slot-input" id="crowInput" data-type="add" readonly>
                     </div>
                 </div>
             </div>
             
             <!-- Lily Pads Area (Operands) -->
-            <div class="lilypads-area" id="lilypadsContainer">
+            <div class="stones-area" id="stonesContainer">
                 <!-- Dynamic lily pads will be inserted here -->
             </div>
             
@@ -55,7 +54,7 @@
                 <div class="progress-dots" id="progressDots"></div>
             </div>
             <button class="done-btn" id="doneBtn">
-                <span class="check-icon">✓</span> DONE
+                <span class="check-icon"></span> DONE
             </button>
         </footer>
         
@@ -89,7 +88,7 @@
                 <button class="key-btn key-submit" id="keypadSubmit">✓</button>
                 
                 <button class="key-btn key-zero" data-key="0">0</button>
-                <button class="key-btn key-cancel" id="keypadCancel">✗ Cancel</button>
+                <button class="key-btn key-cancel" id="keypadCancel">✗</button>
             </div>
         </div>
     </div>
@@ -103,12 +102,12 @@
             </div>
             <div class="modal-body">
                 <div class="rule-item">
-                    <img src="assets/images/lilypad.png" alt="Lily Pad" class="rule-icon">
+                    <img src="assets/images/stone.png" alt="Lily Pad" class="rule-icon">
                     <span>Lily Pad = Number (Operand)</span>
                 </div>
                 <div class="rule-item">
-                    <img src="assets/images/frog.png" alt="Frog" class="rule-icon">
-                    <span>Frog = Addition Result (Sum)</span>
+                    <img src="assets/images/crow.png" alt="crow" class="rule-icon">
+                    <span>crow = Addition Result (Sum)</span>
                 </div>
                 <div class="rule-item">
                     <img src="assets/images/fish.png" alt="Fish" class="rule-icon">
@@ -139,7 +138,7 @@
                 <div class="example-box">
                     <p><strong>Example:</strong></p>
                     <p>Lily Pads: 3 and 5</p>
-                    <p>→ Frog (Add): 8</p>
+                    <p>→ crow (Add): 8</p>
                     <p>→ Fish (Multiply): 15</p>
                 </div>
                 <div class="tip-box">
@@ -156,7 +155,7 @@
     <!-- Completion Modal -->
     <div class="modal-overlay" id="completionModal">
         <div class="completion-card">
-            <img src="assets/images/frog.png" alt="Frog" class="celebration-icon">
+            <img src="assets/images/crow.png" alt="crow" class="celebration-icon">
             <h2>🎉 Game Complete! 🎉</h2>
             <div class="final-score">
                 Your Score: <span id="finalScore">0</span>/10

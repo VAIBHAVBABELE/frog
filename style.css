@@ -71,9 +71,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 20px;
-    background: rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(8px);
+    padding: 5px 5px;
 }
 
 .game-title {
@@ -126,16 +124,16 @@ body {
     pointer-events: auto; /* Re-enable for interactive elements */
 }
 
-/* ===== FROG - Position: Top Center (on grass/pond edge) ===== */
-.frog-area {
+/* ===== crow - Position: Top Center (on grass/pond edge) ===== */
+.crow-area {
     position: absolute;
-    top: 18%;
-    left: 50%;
+    top: 5%;
+    left: 35%;
     transform: translateX(-50%);
     z-index: 15;
 }
 
-.frog-card {
+.crow-card {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -143,45 +141,44 @@ body {
     width: 200px;
 }
 
-.frog-card .card-image {
-    width: 160px;
-    height: 160px;
+.crow-card .card-image {
+    width: 200px;
+    height: 200px;
     filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.25));
     position: relative;
     z-index: 2;
 }
 
-/* Input box on Frog's chest */
-.frog-card .input-wrapper {
+/* Input box on crow's chest */
+.crow-card .input-wrapper {
     position: absolute;
     top: 45%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 90px;
+    width: 50px;
     z-index: 3;
 }
 
-.frog-card .slot-input {
+.crow-card .slot-input {
     width: 100%;
-    padding: 12px 5px;
+    padding: 8px 4px;
     text-align: center;
     font-size: 28px;
     font-weight: 700;
     font-family: 'Nunito', sans-serif;
     background: rgba(255, 255, 255, 0.95);
     border: 3px solid #4a9a4a;
-    border-radius: 20px;
+    border-radius: 10px;
     color: #1a3a1a;
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.1), 0 4px 0 #2a6a2a, 0 4px 10px rgba(0,0,0,0.2);
     outline: none;
     cursor: pointer;
     transition: all 0.1s;
 }
 
 /* ===== LILY PADS - Position: Middle scattered ===== */
-.lilypads-area {
+.stones-area {
     position: absolute;
-    top: 50%;
+    top: 60%;
     left: 50%;
     transform: translate(-50%, -50%);
     display: flex;
@@ -192,7 +189,7 @@ body {
     width: auto;
 }
 
-.lilypad-card {
+.stone-card {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -201,22 +198,22 @@ body {
 }
 
 /* Individual Lily Pad positions offset for natural look */
-.lilypad-card:nth-child(1) {
+.stone-card:nth-child(1) {
     margin-top: -20px;
     margin-left: -30px;
 }
 
-.lilypad-card:nth-child(2) {
+.stone-card:nth-child(2) {
     margin-top: 20px;
     margin-left: 30px;
 }
 
-.lilypad-card:nth-child(3) {
+.stone-card:nth-child(3) {
     margin-top: -10px;
     margin-left: 80px;
 }
 
-.lilypad-card .card-image {
+.stone-card .card-image {
     width: 130px;
     height: 130px;
     filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.25));
@@ -225,27 +222,26 @@ body {
 }
 
 /* Input box on Lily Pad's chest (center) */
-.lilypad-card .input-wrapper {
+.stone-card .input-wrapper {
     position: absolute;
     top: 48%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 75px;
+    width: 50px;
     z-index: 3;
 }
 
-.lilypad-card .slot-input {
+.stone-card .slot-input {
     width: 100%;
-    padding: 10px 3px;
+    padding: 8px 4px;
     text-align: center;
     font-size: 24px;
     font-weight: 700;
     font-family: 'Nunito', sans-serif;
     background: rgba(255, 255, 255, 0.95);
     border: 3px solid #4a9a4a;
-    border-radius: 18px;
+    border-radius: 10px;
     color: #1a3a1a;
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.1), 0 4px 0 #2a6a2a, 0 4px 10px rgba(0,0,0,0.2);
     outline: none;
     cursor: pointer;
     transition: all 0.1s;
@@ -254,8 +250,8 @@ body {
 /* ===== FISH - Position: Bottom Right (in water) ===== */
 .fish-area {
     position: absolute;
-    bottom: 20%;
-    right: 8%;
+    bottom: 1%;
+    right: 15%;
     z-index: 14;
 }
 
@@ -268,8 +264,8 @@ body {
 }
 
 .fish-card .card-image {
-    width: 170px;
-    height: 170px;
+    width: 200px;
+    height: 200px;
     filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.25));
     position: relative;
     z-index: 2;
@@ -278,23 +274,23 @@ body {
 /* Input box on Fish's chest */
 .fish-card .input-wrapper {
     position: absolute;
-    top: 42%;
-    left: 50%;
+    top: 50%;
+    left: 45%;
     transform: translate(-50%, -50%);
-    width: 90px;
+    width: 50px;
     z-index: 3;
 }
 
 .fish-card .slot-input {
     width: 100%;
-    padding: 12px 5px;
+    padding: 8px 4px;
     text-align: center;
     font-size: 28px;
     font-weight: 700;
     font-family: 'Nunito', sans-serif;
     background: rgba(255, 255, 255, 0.95);
     border: 3px solid #4a9a4a;
-    border-radius: 20px;
+    border-radius: 10px;
     color: #1a3a1a;
     box-shadow: inset 0 2px 5px rgba(0,0,0,0.1), 0 4px 0 #2a6a2a, 0 4px 10px rgba(0,0,0,0.2);
     outline: none;
@@ -309,8 +305,8 @@ body {
 }
 
 .slot-input.empty {
-    background: #fff9e0;
-    border-color: #d4a017;
+    background: #fcfcfb;
+    border-color: #3a3939;
     color: #8a7a2a;
 }
 
@@ -336,18 +332,19 @@ body {
     left: 0;
     right: 0;
     z-index: 20;
-    padding: 15px 20px 20px;
+    padding: 10px 12px 12px;
     display: flex;
     align-items: flex-end;
+    align-items: center;
     justify-content: space-between;
     background: linear-gradient(to top, rgba(0, 0, 0, 0.3), transparent);
-    backdrop-filter: blur(5px);
 }
 
 /* ===== Progress Dots ===== */
 .progress-container {
     flex: 1;
     padding-right: 20px;
+    padding-left: 40%;
 }
 
 .progress-dots {
@@ -386,16 +383,15 @@ body {
 .done-btn {
     background: linear-gradient(145deg, #4caf50, #388e3c);
     border: none;
-    padding: 16px 35px;
-    border-radius: 50px;
-    font-size: 24px;
+    padding: 8px 17px;
+    border-radius: 20px;
+    font-size: 22px;
     font-weight: 700;
     color: white;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 5px;
     cursor: pointer;
-    box-shadow: 0 8px 0 #2a6a2a, 0 4px 15px rgba(0, 0, 0, 0.25);
     border: 2px solid #8bc34a;
     transition: all 0.1s;
 }
@@ -455,10 +451,7 @@ body {
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(10px);
     display: none;
     justify-content: center;
     align-items: center;
@@ -471,12 +464,11 @@ body {
 
 /* ===== Keypad Modal ===== */
 .keypad-container {
-    background: linear-gradient(145deg, #2a5a3a, #1a4a2a);
-    padding: 30px;
+    background: linear-gradient(145deg, #4a6452, #1a4a2a);
+    padding: 20px;
     border-radius: 40px;
-    box-shadow: 0 20px 0 #0a2a0a, 0 30px 50px rgba(0, 0, 0, 0.4);
     border: 4px solid #8fbc8f;
-    max-width: 380px;
+    max-width: 300px;
     width: 90%;
 }
 
@@ -513,15 +505,15 @@ body {
 }
 
 .keypad-display {
-    background: #0a1a0a;
-    color: #a0e0a0;
-    padding: 20px;
-    border-radius: 25px;
+    background: #fefefe85;
+    color: #030303;
+    padding: 10px;
+    border-radius: 15px;
     margin-bottom: 25px;
-    font-size: 42px;
+    font-size: 36px;
     text-align: center;
     font-weight: 700;
-    letter-spacing: 4px;
+    letter-spacing: 3px;
     border: inset 4px #1a3a1a;
     font-family: monospace;
 }
@@ -535,15 +527,14 @@ body {
 .key-btn {
     background: linear-gradient(145deg, #e8e0c0, #d4c8a0);
     border: none;
-    border-radius: 20px;
+    border-radius: 100%;
     padding: 18px 0;
-    font-size: 28px;
+    font-size: 22px;
     font-weight: 700;
     color: #1a3a1a;
-    box-shadow: 0 8px 0 #7a6a4a, 0 5px 10px rgba(0, 0, 0, 0.2);
     cursor: pointer;
     transition: all 0.05s;
-    border: 2px solid #f5f0d0;
+    border: 1px solid #f5f0d0;
 }
 
 .key-btn:active {
@@ -643,18 +634,17 @@ body {
 }
 
 .modal-btn {
-    width: 100%;
-    padding: 18px;
+
+    padding: 10px;
     background: linear-gradient(145deg, #4caf50, #388e3c);
     border: none;
-    border-radius: 35px;
+    border-radius: 15px;
     font-size: 22px;
     font-weight: 700;
     color: white;
     cursor: pointer;
-    box-shadow: 0 8px 0 #2a6a2a;
     border: 2px solid #8bc34a;
-    margin-top: 25px;
+    margin-top: 15px;
     transition: all 0.1s;
 }
 
@@ -665,21 +655,20 @@ body {
 
 /* ===== Completion Modal ===== */
 .completion-card {
-    background: linear-gradient(145deg, #2a6a4a, #1a5a3a);
-    padding: 45px;
-    border-radius: 55px;
-    box-shadow: 0 20px 0 #0a3a1a, 0 30px 50px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(145deg, #375e4a, #1a5a3a);
+    padding: 15px;
+    border-radius: 20px;
     border: 4px solid #a0d8a0;
     text-align: center;
-    max-width: 420px;
+    max-width: 400px;
     width: 90%;
 }
 
 .celebration-icon {
     width: 110px;
     height: 110px;
-    margin-bottom: 25px;
-    animation: bounce 0.6s infinite alternate;
+    margin-bottom: 15px;
+    animation: bounce 0.5s infinite alternate;
 }
 
 @keyframes bounce {
@@ -688,23 +677,23 @@ body {
 }
 
 .completion-card h2 {
-    color: #ffd700;
-    font-size: 36px;
+    color: #ffd900;
+    font-size: 28px;
     text-shadow: 3px 3px 0 #1a3a1a;
-    margin-bottom: 25px;
+    margin-bottom: 15px;
 }
 
 .final-score {
     color: #e0e0a0;
-    font-size: 32px;
-    margin: 25px 0;
+    font-size: 28px;
+    margin: 10px 0;
     font-weight: 700;
 }
 
 .performance-message {
     color: #c0e0c0;
     font-size: 22px;
-    margin-bottom: 35px;
+    margin-bottom: 20px;
 }
 
 /* ===== Animations ===== */
@@ -731,30 +720,30 @@ body {
         font-size: 22px;
     }
     
-    .frog-card .card-image {
+    .crow-card .card-image {
         width: 130px;
         height: 130px;
     }
     
-    .frog-card .input-wrapper {
-        width: 75px;
+    .crow-card .input-wrapper {
+        width: 50px;
     }
     
-    .frog-card .slot-input {
+    .crow-card .slot-input {
         font-size: 22px;
         padding: 10px 3px;
     }
     
-    .lilypad-card .card-image {
+    .stone-card .card-image {
         width: 100px;
         height: 100px;
     }
     
-    .lilypad-card .input-wrapper {
-        width: 60px;
+    .stone-card .input-wrapper {
+        width: 45px;
     }
     
-    .lilypad-card .slot-input {
+    .stone-card .slot-input {
         font-size: 20px;
         padding: 8px 2px;
     }
@@ -765,7 +754,7 @@ body {
     }
     
     .fish-card .input-wrapper {
-        width: 75px;
+        width: 60px;
     }
     
     .fish-card .slot-input {
@@ -773,7 +762,7 @@ body {
         padding: 10px 3px;
     }
     
-    .lilypads-area {
+    .stones-area {
         gap: 20px;
     }
     
@@ -789,16 +778,16 @@ body {
 }
 
 @media (max-width: 380px) {
-    .lilypads-area {
+    .stones-area {
         gap: 10px;
     }
     
-    .lilypad-card .card-image {
+    .stone-card .card-image {
         width: 85px;
         height: 85px;
     }
     
-    .frog-card .card-image {
+    .crow-card .card-image {
         width: 110px;
         height: 110px;
     }
@@ -807,4 +796,35 @@ body {
         width: 120px;
         height: 120px;
     }
+}
+
+/* ===== Number on Image (Readonly values) ===== */
+.number-on-image {
+    position: absolute;
+    top: 50%;
+    left: 40%;
+    transform: translate(-50%, -50%);
+    font-size: 32px;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 5px 2px 0 rgba(9, 9, 9, 0.5);
+    z-index: 5;
+    pointer-events: none;
+    padding: 4px 8px;
+    
+    border-radius: 100%;
+}
+
+.stone-card {
+    position: relative;
+}
+
+.crow-card, .fish-card {
+    position: relative;
+}
+
+.crow-number, .fish-number {
+    font-size: 36px;
+    color: #f6f7f4;
+    text-shadow: 2px 2px 0 rgba(255,255,255,0.5);
 }

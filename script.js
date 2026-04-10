@@ -9,61 +9,76 @@
         MAX_OPERANDS: 3
     };
     
+    // ===== Track First-Time Patterns =====
+    let firstAddSeen = false;
+    let firstMulSeen = false;
+    let firstBothSeen = false;
+    
     // ===== 10 Fixed Question Patterns =====
     const QUESTION_PATTERNS = [
-        // Pattern 1: pos × pos = blank
+        // Pattern 1: pos × pos = blank (Only Mul blank)
         {
             operands: [2, 3],
-            blanks: [false, false, false, true]
+            blanks: [false, false, false, true],
+            type: 'mul'
         },
-        // Pattern 2: pos + pos = blank
+        // Pattern 2: pos + pos = blank (Only Add blank)
         {
             operands: [4, 5],
-            blanks: [false, false, true, false]
+            blanks: [false, false, true, false],
+            type: 'add'
         },
-        // Pattern 3: pos , pos = blank , blank
+        // Pattern 3: pos , pos = blank , blank (Both blank)
         {
             operands: [3, 6],
-            blanks: [false, false, true, true]
+            blanks: [false, false, true, true],
+            type: 'both'
         },
-        // Pattern 4: blank , blank = mul , add
+        // Pattern 4: blank , blank = mul , add (Both operands blank)
         {
             operands: [3, 5],
-            blanks: [true, true, false, false]
+            blanks: [true, true, false, false],
+            type: 'operands'
         },
-        // Pattern 5: pos , neg = blank , blank
+        // Pattern 5: pos , neg = blank , blank (Both blank)
         {
             operands: [4, -2],
-            blanks: [false, false, true, true]
+            blanks: [false, false, true, true],
+            type: 'both'
         },
-        // Pattern 6: blank , blank = neg(mul) , pos(add)
+        // Pattern 6: blank , blank = neg(mul) , pos(add) (Both operands blank)
         {
             operands: [4, -3],
-            blanks: [true, true, false, false]
+            blanks: [true, true, false, false],
+            type: 'operands'
         },
-        // Pattern 7: pos , neg , neg = blank(pos mul) , blank(neg add)
+        // Pattern 7: pos , neg , neg = blank , blank (3 operands, both blank)
         {
             operands: [2, -3, -1],
-            blanks: [false, false, false, true, true]
+            blanks: [false, false, false, true, true],
+            type: 'both'
         },
-        // Pattern 8: blank , blank , blank = neg(mul) , pos(add)
+        // Pattern 8: blank , blank , blank = neg(mul) , pos(add) (3 operands blank)
         {
             operands: [2, -3, 4],
-            blanks: [true, true, true, false, false]
+            blanks: [true, true, true, false, false],
+            type: 'operands'
         },
-        // Pattern 9: pos , pos , neg = blank , blank
+        // Pattern 9: pos , pos , neg = blank , blank (3 operands, both blank)
         {
             operands: [3, 2, -1],
-            blanks: [false, false, false, true, true]
+            blanks: [false, false, false, true, true],
+            type: 'both'
         },
-        // Pattern 10: blank , blank = pos(add) , neg(mul)
+        // Pattern 10: blank , blank = pos(add) , neg(mul) (Both operands blank)
         {
             operands: [5, -2],
-            blanks: [true, true, false, false]
+            blanks: [true, true, false, false],
+            type: 'operands'
         }
     ];
     
-    // ===== Sound Manager =====
+    // ===== Sound Manager (Same as before) =====
     class SoundManager {
         constructor() {
             this.audioContext = null;
@@ -154,6 +169,14 @@
         }
     }
     
+    // ===== Helper: Check if two arrays have same elements (order independent) =====
+    function areArraysEqualIgnoreOrder(arr1, arr2) {
+        if (arr1.length !== arr2.length) return false;
+        const sorted1 = [...arr1].sort((a, b) => a - b);
+        const sorted2 = [...arr2].sort((a, b) => a - b);
+        return sorted1.every((val, idx) => val === sorted2[idx]);
+    }
+    
     // ===== Game Class =====
     class MathPondGame {
         constructor() {
@@ -173,43 +196,29 @@
         
         initElements() {
             this.elements = {
-                // Inputs
-                frogInput: document.getElementById('frogInput'),
+                crowInput: document.getElementById('crowInput'),
                 fishInput: document.getElementById('fishInput'),
-                lilypadsContainer: document.getElementById('lilypadsContainer'),
-                
-                // Progress
+                stonesContainer: document.getElementById('stonesContainer'),
                 progressDots: document.getElementById('progressDots'),
-                
-                // Buttons
                 doneBtn: document.getElementById('doneBtn'),
                 rulesBtn: document.getElementById('rulesBtn'),
                 voiceToggle: document.getElementById('voiceToggle'),
                 helpBtn: document.getElementById('helpBtn'),
-                
-                // Modals
                 keypadModal: document.getElementById('keypadModal'),
                 rulesModal: document.getElementById('rulesModal'),
                 helpModal: document.getElementById('helpModal'),
                 completionModal: document.getElementById('completionModal'),
-                
-                // Keypad elements
                 keypadDisplay: document.getElementById('keypadDisplay'),
-                
-                // Message
                 messageToast: document.getElementById('messageToast'),
-                
-                // Final score
                 finalScore: document.getElementById('finalScore'),
                 performanceMessage: document.getElementById('performanceMessage')
             };
         }
         
         initEventListeners() {
-            // Input clicks - only for empty/editable slots
-            this.elements.frogInput.addEventListener('click', (e) => {
+            this.elements.crowInput.addEventListener('click', (e) => {
                 if (!e.target.readOnly) {
-                    this.openKeypad('frog');
+                    this.openKeypad('crow');
                 }
             });
             
@@ -219,15 +228,11 @@
                 }
             });
             
-            // Done button
             this.elements.doneBtn.addEventListener('click', () => this.checkAnswer());
-            
-            // Header buttons
             this.elements.rulesBtn.addEventListener('click', () => this.showModal('rules'));
             this.elements.helpBtn.addEventListener('click', () => this.showModal('help'));
             this.elements.voiceToggle.addEventListener('click', () => this.toggleVoice());
             
-            // Keypad
             document.querySelectorAll('[data-key]').forEach(btn => {
                 btn.addEventListener('click', (e) => this.handleKeypadInput(e.target.dataset.key));
             });
@@ -237,19 +242,19 @@
             document.getElementById('keypadCancel').addEventListener('click', () => this.closeKeypad());
             document.getElementById('closeKeypad').addEventListener('click', () => this.closeKeypad());
             
-            // Modal close buttons
             document.getElementById('closeRules').addEventListener('click', () => this.hideModal('rules'));
             document.getElementById('closeHelp').addEventListener('click', () => this.hideModal('help'));
             document.getElementById('gotItBtn').addEventListener('click', () => this.hideModal('rules'));
             document.getElementById('gotHelpBtn').addEventListener('click', () => this.hideModal('help'));
             
-            // Play again
             document.getElementById('playAgainBtn').addEventListener('click', () => {
                 this.hideModal('completion');
+                firstAddSeen = false;
+                firstMulSeen = false;
+                firstBothSeen = false;
                 this.startNewGame();
             });
             
-            // Modal overlay clicks
             this.elements.keypadModal.addEventListener('click', (e) => {
                 if (e.target === this.elements.keypadModal) this.closeKeypad();
             });
@@ -275,14 +280,12 @@
         }
         
         generateNewQuestion() {
-            // Get pattern based on question number (cycle through 10 patterns)
             const patternIndex = (this.questionNumber - 1) % QUESTION_PATTERNS.length;
             const pattern = QUESTION_PATTERNS[patternIndex];
             
             const operands = [...pattern.operands];
             const operandCount = operands.length;
             
-            // Calculate results
             const add = operands.reduce((a, b) => a + b, 0);
             const mul = operands.reduce((a, b) => a * b, 1);
             
@@ -291,37 +294,56 @@
                 add,
                 mul,
                 blanks: [...pattern.blanks],
-                operandCount
+                operandCount,
+                type: pattern.type
             };
             
             this.userAnswers = {};
             this.autoFillGivenValues();
-            this.renderLilyPads();
-            this.renderFrogFish();
+            this.renderstones();
+            this.rendercrowFish();
+            this.showPatternHint();
+        }
+        
+        showPatternHint() {
+            const type = this.currentQuestion.type;
+            let hint = '';
+            
+            if (type === 'add' && !firstAddSeen) {
+                firstAddSeen = true;
+                hint = '🐸 crow shows ADDITION result! Add the lily pad numbers!';
+            } else if (type === 'mul' && !firstMulSeen) {
+                firstMulSeen = true;
+                hint = '🐟 Fish shows MULTIPLICATION result! Multiply the lily pad numbers!';
+            } else if (type === 'both' && !firstBothSeen) {
+                firstBothSeen = true;
+                hint = '🐸 crow = ADD, 🐟 Fish = MULTIPLY! Fill both results!';
+            }
+            
+            if (hint) {
+                this.showMessage(hint, 'success');
+            }
         }
         
         autoFillGivenValues() {
             const q = this.currentQuestion;
             
-            // Operands
             for (let i = 0; i < q.operandCount; i++) {
                 if (!q.blanks[i]) {
                     this.userAnswers[`operand_${i}`] = q.operands[i];
                 }
             }
             
-            // Add result
             if (!q.blanks[q.operandCount]) {
                 this.userAnswers['add'] = q.add;
             }
             
-            // Mul result
             if (!q.blanks[q.operandCount + 1]) {
                 this.userAnswers['mul'] = q.mul;
             }
         }
         
-        renderLilyPads() {
+        renderstones() {
             const q = this.currentQuestion;
             let html = '';
             
@@ -331,49 +353,74 @@
                 const displayValue = value !== undefined ? value : (isBlank ? '' : q.operands[i]);
                 const isReadonly = !isBlank;
                 
-                html += `
-                    <div class="lilypad-card">
-                        <img src="assets/images/lilypad.png" alt="Lily Pad" class="card-image">
-                        <div class="input-wrapper">
-                            <input type="text" 
-                                   class="slot-input ${isBlank && value === undefined ? 'empty' : 'filled'}" 
-                                   data-type="operand" 
-                                   data-index="${i}"
-                                   value="${displayValue}"
-                                   ${isReadonly ? 'readonly' : ''}
-                                   placeholder="${isBlank ? '___' : ''}">
+                if (isReadonly) {
+                    // Readonly - sirf number image ke upar, koi input box nahi
+                    html += `
+                        <div class="stone-card">
+                            <img src="assets/images/stone.png" alt="Lily Pad" class="card-image">
+                            <div class="number-on-image">${displayValue}</div>
                         </div>
-                    </div>
-                `;
+                    `;
+                } else {
+                    // Editable - input box ke saath
+                    html += `
+                        <div class="stone-card">
+                            <img src="assets/images/stone.png" alt="Lily Pad" class="card-image">
+                            <div class="input-wrapper">
+                                <input type="text" 
+                                       class="slot-input ${value === undefined ? 'empty' : 'filled'}" 
+                                       data-type="operand" 
+                                       data-index="${i}"
+                                       value="${displayValue}"
+                                       >
+                            </div>
+                        </div>
+                    `;
+                }
             }
             
-            this.elements.lilypadsContainer.innerHTML = html;
+            this.elements.stonesContainer.innerHTML = html;
             
-            // Attach click handlers ONLY to editable inputs
             document.querySelectorAll('[data-type="operand"]').forEach(input => {
                 input.addEventListener('click', (e) => {
-                    if (!e.target.readOnly) {
-                        const index = e.target.dataset.index;
-                        this.openKeypad('operand', index);
-                    }
+                    const index = e.target.dataset.index;
+                    this.openKeypad('operand', index);
                 });
             });
         }
         
-        renderFrogFish() {
+        rendercrowFish() {
             const q = this.currentQuestion;
             
-            // Frog (Add)
+            // crow (Add)
             const addIndex = q.operandCount;
             const isAddBlank = q.blanks[addIndex];
             const addValue = this.userAnswers['add'];
             const addDisplayValue = addValue !== undefined ? addValue : (isAddBlank ? '' : q.add);
             const addReadonly = !isAddBlank;
             
-            this.elements.frogInput.value = addDisplayValue;
-            this.elements.frogInput.className = `slot-input ${isAddBlank && addValue === undefined ? 'empty' : 'filled'}`;
-            this.elements.frogInput.placeholder = isAddBlank ? '___' : '';
-            this.elements.frogInput.readOnly = addReadonly;
+            if (addReadonly) {
+                // Readonly crow - number image ke upar
+                this.elements.crowInput.style.display = 'none';
+                const crowCard = document.querySelector('.crow-card');
+                let numberSpan = crowCard.querySelector('.number-on-image');
+                if (!numberSpan) {
+                    numberSpan = document.createElement('div');
+                    numberSpan.className = 'number-on-image crow-number';
+                    crowCard.appendChild(numberSpan);
+                }
+                numberSpan.textContent = addDisplayValue;
+            } else {
+                // Editable crow - input box
+                this.elements.crowInput.style.display = 'block';
+                const crowCard = document.querySelector('.crow-card');
+                const numberSpan = crowCard.querySelector('.number-on-image');
+                if (numberSpan) numberSpan.remove();
+                
+                this.elements.crowInput.value = addDisplayValue;
+                this.elements.crowInput.className = `slot-input ${addValue === undefined ? 'empty' : 'filled'}`;
+                this.elements.crowInput.readOnly = false;
+            }
             
             // Fish (Mul)
             const mulIndex = q.operandCount + 1;
@@ -382,10 +429,26 @@
             const mulDisplayValue = mulValue !== undefined ? mulValue : (isMulBlank ? '' : q.mul);
             const mulReadonly = !isMulBlank;
             
-            this.elements.fishInput.value = mulDisplayValue;
-            this.elements.fishInput.className = `slot-input ${isMulBlank && mulValue === undefined ? 'empty' : 'filled'}`;
-            this.elements.fishInput.placeholder = isMulBlank ? '___' : '';
-            this.elements.fishInput.readOnly = mulReadonly;
+            if (mulReadonly) {
+                this.elements.fishInput.style.display = 'none';
+                const fishCard = document.querySelector('.fish-card');
+                let numberSpan = fishCard.querySelector('.number-on-image');
+                if (!numberSpan) {
+                    numberSpan = document.createElement('div');
+                    numberSpan.className = 'number-on-image fish-number';
+                    fishCard.appendChild(numberSpan);
+                }
+                numberSpan.textContent = mulDisplayValue;
+            } else {
+                this.elements.fishInput.style.display = 'block';
+                const fishCard = document.querySelector('.fish-card');
+                const numberSpan = fishCard.querySelector('.number-on-image');
+                if (numberSpan) numberSpan.remove();
+                
+                this.elements.fishInput.value = mulDisplayValue;
+                this.elements.fishInput.className = `slot-input ${mulValue === undefined ? 'empty' : 'filled'}`;
+                this.elements.fishInput.readOnly = false;
+            }
         }
         
         openKeypad(type, index = null) {
@@ -450,13 +513,13 @@
             
             if (type === 'operand') {
                 this.userAnswers[`operand_${index}`] = value;
-                this.renderLilyPads();
-            } else if (type === 'frog') {
+                this.renderstones();
+            } else if (type === 'crow') {
                 this.userAnswers['add'] = value;
-                this.renderFrogFish();
+                this.rendercrowFish();
             } else if (type === 'fish') {
                 this.userAnswers['mul'] = value;
-                this.renderFrogFish();
+                this.rendercrowFish();
             }
             
             this.closeKeypad();
@@ -469,15 +532,18 @@
             let allCorrect = true;
             let allFilled = true;
             
-            // Check operands
+            // Collect user operands for commutative check
+            const userOperands = [];
             for (let i = 0; i < q.operandCount; i++) {
                 if (q.blanks[i]) {
                     const userVal = this.userAnswers[`operand_${i}`];
                     if (userVal === undefined) {
                         allFilled = false;
-                    } else if (userVal !== q.operands[i]) {
-                        allCorrect = false;
+                    } else {
+                        userOperands.push(userVal);
                     }
+                } else {
+                    userOperands.push(q.operands[i]);
                 }
             }
             
@@ -497,6 +563,13 @@
                 if (userMul === undefined) {
                     allFilled = false;
                 } else if (userMul !== q.mul) {
+                    allCorrect = false;
+                }
+            }
+            
+            // Commutative check for operands (order independent)
+            if (allCorrect && userOperands.length === q.operandCount) {
+                if (!areArraysEqualIgnoreOrder(userOperands, q.operands)) {
                     allCorrect = false;
                 }
             }
@@ -588,7 +661,7 @@
             
             setTimeout(() => {
                 toast.classList.remove('show');
-            }, 2000);
+            }, 3000);
         }
         
         showModal(modalName) {
@@ -636,7 +709,6 @@
         }
     }
     
-    // Initialize game
     document.addEventListener('DOMContentLoaded', () => {
         new MathPondGame();
     });
