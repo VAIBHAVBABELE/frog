@@ -216,6 +216,18 @@
         }
         
         initEventListeners() {
+            const blockKeyboard = (e) => {
+                e.preventDefault();
+                return false;
+            };
+            
+            this.elements.crowInput.addEventListener('keydown', blockKeyboard);
+            this.elements.crowInput.addEventListener('keyup', blockKeyboard);
+            this.elements.crowInput.addEventListener('input', blockKeyboard);
+            
+            this.elements.fishInput.addEventListener('keydown', blockKeyboard);
+            this.elements.fishInput.addEventListener('keyup', blockKeyboard);
+            this.elements.fishInput.addEventListener('input', blockKeyboard);
             this.elements.crowInput.addEventListener('click', (e) => {
                 if (!e.target.readOnly) {
                     this.openKeypad('crow');
@@ -239,7 +251,6 @@
             
             document.getElementById('keypadClear').addEventListener('click', () => this.clearKeypad());
             document.getElementById('keypadSubmit').addEventListener('click', () => this.submitKeypadValue());
-            document.getElementById('keypadCancel').addEventListener('click', () => this.closeKeypad());
             document.getElementById('closeKeypad').addEventListener('click', () => this.closeKeypad());
             
             document.getElementById('closeRules').addEventListener('click', () => this.hideModal('rules'));
@@ -344,6 +355,8 @@
         }
         
         renderstones() {
+            
+
             const q = this.currentQuestion;
             let html = '';
             
@@ -386,6 +399,24 @@
                     const index = e.target.dataset.index;
                     this.openKeypad('operand', index);
                 });
+            });
+            this.elements.stonesContainer.innerHTML = html;
+    
+            document.querySelectorAll('[data-type="operand"]').forEach(input => {
+                input.addEventListener('click', (e) => {
+                    const index = e.target.dataset.index;
+                    this.openKeypad('operand', index);
+                });
+                
+                // === ADD THIS BLOCK ===
+                const blockKeyboard = (e) => {
+                    e.preventDefault();
+                    return false;
+                };
+                input.addEventListener('keydown', blockKeyboard);
+                input.addEventListener('keyup', blockKeyboard);
+                input.addEventListener('input', blockKeyboard);
+                // === END BLOCK ===
             });
         }
         
@@ -714,3 +745,45 @@
     });
     
 })();
+
+// Add this to your script.js
+function makeKeypadDraggable() {
+    const keypad = document.getElementById('keypadContainer');
+    if (!keypad) return;
+    
+    let isDragging = false;
+    let startX, startY, initialX, initialY;
+    
+    keypad.addEventListener('mousedown', (e) => {
+        if (e.target.tagName === 'BUTTON') return;
+        
+        isDragging = true;
+        const rect = keypad.getBoundingClientRect();
+        initialX = rect.left;
+        initialY = rect.top;
+        startX = e.clientX;
+        startY = e.clientY;
+        
+        keypad.style.transform = 'none';
+        keypad.style.left = initialX + 'px';
+        keypad.style.top = initialY + 'px';
+        keypad.style.cursor = 'grabbing';
+    });
+    
+    document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        keypad.style.left = (initialX + dx) + 'px';
+        keypad.style.top = (initialY + dy) + 'px';
+    });
+    
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+        keypad.style.cursor = 'grab';
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(makeKeypadDraggable, 100);
+});
